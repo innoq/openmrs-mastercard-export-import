@@ -1,0 +1,12 @@
+Simple export/import of selected patient history into a Malawi-Mastercard-like CSV representation
+
+Check out
+- http://svn.openmrs.org/openmrs/branches/1.7.x/
+
+Get it going:
+- Copy/paste src/openmrs-runtime.properties.sample to src/openmrs-runtime.properties
+- Adjust properties as needed
+(maybe not - copy cp webapps/openmrs/WEB-INF/bundledModules/logic-0.5.omod to ~/.OpenMRS/modules/)
+- Edit Eclips eRun Configuration for ArtExporter and adjust parameters as needed 
+- Run ArtExporter
+- Check for files in dir export

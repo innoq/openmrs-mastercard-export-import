@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//OpenMRS//DTD OpenMRS Config 1.2//EN" "../lib-common/config-1.2.dtd">
+
+<module configVersion="1.2">
+	
+	<!-- Base Module Properties -->
+	<id>mastercard</id>
+	<name>PIH Malawi Mastercard Module</name>
+	<version>0.1</version>
+	<package>org.openmrs.module.mastercard</package>
+	<author>Michael Leibfried, innoQ Deutschland GmbH</author>
+	<description>
+			Export/import of Malawi-like CSV-Mastercards
+	</description>
+
+	<activator>org.openmrs.module.mastercard.MastercardActivator</activator>
+	
+	<require_version>1.5.2</require_version>
+
+	<!-- Internationalization -->
+	<!-- All message codes should start with @MODULE_ID@.* -->
+	<messages>
+		<lang>en</lang>
+		<file>messages.properties</file>
+	</messages>
+	<!-- /Internationalization -->
+	
+</module>
+
