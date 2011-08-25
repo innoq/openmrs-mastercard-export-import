@@ -61,7 +61,7 @@ public class HeaderData extends AbstractData {
 		} else {
 			r += csv("Outcome NNO", "Unknown");
 		}
-		r += NEWLINE;
+		r += Constants.NEWLINE;
 		
 		// ART no Pre-ART no Pre-ART start date OpenMRS ID VHW
 		String artNos = identifierStrings(encounter.getPatient().getPatientIdentifiers(
@@ -72,38 +72,38 @@ public class HeaderData extends AbstractData {
 		String patientId = "" + encounter.getPatientId();
 		String vhwName = "(todo)";
 		String name = h(encounter.getPatient().getGivenName()) + " " + h(encounter.getPatient().getFamilyName());
-		String stage = NOT_AVAILABLE;
-		String tbStat = NOT_AVAILABLE;
-		String datePlace = NOT_AVAILABLE;
-		String type = NOT_AVAILABLE;
+		String stage = Constants.NOT_AVAILABLE;
+		String tbStat = Constants.NOT_AVAILABLE;
+		String datePlace = Constants.NOT_AVAILABLE;
+		String type = Constants.NOT_AVAILABLE;
 		String sex = encounter.getPatient().getGender();
 		String dob = date(encounter.getPatient().getBirthdate());
-		String phone = NOT_AVAILABLE;
-		String cd4 = NOT_AVAILABLE;
-		String cd4P = NOT_AVAILABLE;
-		String ks = NOT_AVAILABLE;
+		String phone = Constants.NOT_AVAILABLE;
+		String cd4 = Constants.NOT_AVAILABLE;
+		String cd4P = Constants.NOT_AVAILABLE;
+		String ks = Constants.NOT_AVAILABLE;
 		String addr = "";
 		Set<PersonAddress> addresses = encounter.getPatient().getAddresses();
 		for (PersonAddress a : addresses) {
 			addr += h(a.getCityVillage()) + " " + h(a.getCountyDistrict()) + ", ";
 		}
-		String cd4Date = NOT_AVAILABLE;
-		String preg = NOT_AVAILABLE;
+		String cd4Date = Constants.NOT_AVAILABLE;
+		String preg = Constants.NOT_AVAILABLE;
 		String d4TDate = date(encounter.getEncounterDatetime()); // assume date of initial is date of 1st line regimen
 		//TODO mild: family name: 2928, name 2927
 		String guardianName = "";
-		String hgt = NOT_AVAILABLE;
-		String wgt = NOT_AVAILABLE;
-		String everArv = NOT_AVAILABLE;
-		String alt1stL = NOT_AVAILABLE;
-		String alt1stLDate = NOT_AVAILABLE;
-		String fup = NOT_AVAILABLE;
-		String grel = NOT_AVAILABLE;
-		String gphone = NOT_AVAILABLE;
+		String hgt = Constants.NOT_AVAILABLE;
+		String wgt = Constants.NOT_AVAILABLE;
+		String everArv = Constants.NOT_AVAILABLE;
+		String alt1stL = Constants.NOT_AVAILABLE;
+		String alt1stLDate = Constants.NOT_AVAILABLE;
+		String fup = Constants.NOT_AVAILABLE;
+		String grel = Constants.NOT_AVAILABLE;
+		String gphone = Constants.NOT_AVAILABLE;
 		String ageInit = "" + encounter.getPatient().getAge(encounter.getEncounterDatetime()); // assumption based on d4TDate
-		String lastArv = NOT_AVAILABLE;
-		String secondL = NOT_AVAILABLE;
-		String secondLDate = NOT_AVAILABLE;
+		String lastArv = Constants.NOT_AVAILABLE;
+		String secondL = Constants.NOT_AVAILABLE;
+		String secondLDate = Constants.NOT_AVAILABLE;
 		String unknownObs = "";
 		
 		for (Obs o : encounter.getAllObs()) {
@@ -152,25 +152,25 @@ public class HeaderData extends AbstractData {
 		}
 		
 		r += csv("ART no", artNos, "OpenMRS ID", patientId);
-		r += NEWLINE + NEWLINE;
+		r += Constants.NEWLINE + Constants.NEWLINE;
 		r += csv("Patient Guardian details", "", "", "", "", "", "Status at ART initiation", "", "", "", "", "",
 		    "First positive HIV test", "");
-		r += NEWLINE;
+		r += Constants.NEWLINE;
 		r += csv("Patient name", name, "", "", "", "", "Clin Stage", stage, "", "", "TB Status at initiation", tbStat,
 		    "Date, Place", datePlace, "Type", type);
-		r += NEWLINE;
+		r += Constants.NEWLINE;
 		r += csv("Sex", sex, "DOB", dob, "Patient phone", phone, "CD4 count", cd4, "%", cd4P, "KS", ks, "ART Regimen", "",
 		    "Start date");
-		r += NEWLINE;
+		r += Constants.NEWLINE;
 		r += csv("Phys. Address", addr, "", "", "", "", "CD4 date", cd4Date, "", "", "Pregnant at initiation", preg,
 		    "1st Line", "d4T 3TC NVP", d4TDate);
-		r += NEWLINE;
+		r += Constants.NEWLINE;
 		r += csv("Guardian Name", guardianName, "", "", "", "", "Height", hgt, "Weight", wgt, "Ever taken ARVs", everArv,
 		    "Alt 1st Line", alt1stL, alt1stLDate);
-		r += NEWLINE;
+		r += Constants.NEWLINE;
 		r += csv("Agrees to FUP", fup, "Guardian Relation", grel, "Guardian Phone", gphone, "Age at init.", ageInit, "", "",
 		    "Last ARVs (drug, date)", lastArv, "2nd Line", secondL, secondLDate, "", "Unknown Obs", unknownObs);
-		r += NEWLINE;
+		r += Constants.NEWLINE;
 		
 		return r;
 	}

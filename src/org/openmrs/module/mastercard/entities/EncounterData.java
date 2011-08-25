@@ -45,30 +45,30 @@ public class EncounterData extends AbstractData {
 		Set<Obs> obss = e.getAllObs();
 		String loc = map(e.getLocation().getName());
 		String date = date(e.getEncounterDatetime());
-		String height = NOT_AVAILABLE;
-		String weight = NOT_AVAILABLE;
+		String hgt = Constants.NOT_AVAILABLE;
+		String wgt = Constants.NOT_AVAILABLE;
 		PatientState s = currentProgramWorkflowStatus(1, e.getPatient(), e.getEncounterDatetime());
 		String outcomeEnrollment = outcomeEnrollment(s);
-		String outcome = NOT_AVAILABLE;
+		String outcome = Constants.NOT_AVAILABLE;
 		String outcomeDate = ("".equals(outcomeEnrollment) ? "" : date(s.getStartDate()));
-		String regimen = NOT_AVAILABLE;
+		String regimen = Constants.NOT_AVAILABLE;
 		String sideEffects = "";
-		String tb = NOT_AVAILABLE;
-		String pillCount = NOT_AVAILABLE;
-		String dosesMissed = NOT_AVAILABLE;
-		String noOfArvGiven = NOT_AVAILABLE;
-		String arvsGivenTo = NOT_AVAILABLE;
-		String cptNo = NOT_AVAILABLE;
-		String comments = NOT_AVAILABLE;
-		String nextAppt = NOT_AVAILABLE;
+		String tb = Constants.NOT_AVAILABLE;
+		String pillCount = Constants.NOT_AVAILABLE;
+		String dosesMissed = Constants.NOT_AVAILABLE;
+		String noOfArvGiven = Constants.NOT_AVAILABLE;
+		String arvsGivenTo = Constants.NOT_AVAILABLE;
+		String cptNo = Constants.NOT_AVAILABLE;
+		String comments = Constants.NOT_AVAILABLE;
+		String nextAppt = Constants.NOT_AVAILABLE;
 		String unknownObs = "";
 		for (Obs o : obss) {
 			switch (o.getConcept().getConceptId()) {
 				case 5090:
-					height = numeric(o.getValueNumeric());
+					hgt = numeric(o.getValueNumeric());
 					break;
 				case 5089:
-					weight = numeric(o.getValueNumeric());
+					wgt = numeric(o.getValueNumeric());
 					break;
 				case 2530:
 					outcome = map(valueCoded(o.getValueCodedName()));
@@ -124,7 +124,7 @@ public class EncounterData extends AbstractData {
 			}
 		}
 		
-		return csv(loc, date, height, weight, outcomeEnrollment, outcome, outcomeDate, regimen, sideEffects, tb, pillCount,
+		return csv(loc, date, hgt, wgt, outcomeEnrollment, outcome, outcomeDate, regimen, sideEffects, tb, pillCount,
 		    dosesMissed, noOfArvGiven, arvsGivenTo, cptNo, comments, nextAppt, unknownObs);
 		
 	}

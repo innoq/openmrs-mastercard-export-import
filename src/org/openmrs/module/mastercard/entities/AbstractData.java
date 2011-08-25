@@ -68,9 +68,7 @@ public abstract class AbstractData {
 	
 	protected abstract String extractEncounterData(Encounter e);
 	
-	protected static final String NOT_AVAILABLE = "-";
-	
-	protected static final String NEWLINE = "\n";
+
 	
 	private Helper h = new Helper();
 	
