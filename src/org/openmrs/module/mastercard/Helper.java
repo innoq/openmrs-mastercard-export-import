@@ -1,13 +1,5 @@
 package org.openmrs.module.mastercard;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
@@ -21,6 +13,8 @@ import org.openmrs.PatientState;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
+
+import java.util.*;
 
 public class Helper {
 
