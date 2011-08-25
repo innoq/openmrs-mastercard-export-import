@@ -1,0 +1,177 @@
+/**
+ * The contents of this file are subject to the OpenMRS Public License
+ * Version 1.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://license.openmrs.org
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific language governing rights and limitations
+ * under the License.
+ *
+ * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
+ */
+package org.openmrs.module.mastercard.entities;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.apache.log4j.Logger;
+import org.openmrs.ConceptName;
+import org.openmrs.Encounter;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
+import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
+import org.openmrs.PersonAddress;
+import org.openmrs.ProgramWorkflow;
+import org.openmrs.api.ProgramWorkflowService;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.mastercard.ArtExporter;
+import org.openmrs.module.mastercard.Helper;
+
+/**
+ *
+ */
+public class HeaderData extends AbstractData {
+	
+	static Logger logger = Logger.getLogger(HeaderData.class);
+	
+	public HeaderData(Encounter e) {
+		super(e);
+	}
+	
+	protected String extractEncounterData(Encounter encounter) {
+		logger.info("exportInitial(Encounter " + encounter.getId() + ")");
+		String r = "";
+		
+		PatientState ps = currentProgramWorkflowStatus(1, encounter.getPatient(), new Date());
+		//		ps = h.getMostRecentStateAtLocation(encounter.getPatient(), h.program("HIV PROGRAM"), h.location("Neno District Hospital"), sessionFactory().getCurrentSession());
+		
+		if (ps != null) {
+			r += csv("Outcome NNO", ps.getState().getConcept().getName().getName(), "at location" /*, map(h.getEnrollmentLocation(ps.getPatientProgram(),
+			                                                                                      sessionFactory().getCurrentSession()).getName())*/);
+		} else {
+			r += csv("Outcome NNO", "Unknown");
+		}
+		r += NEWLINE;
+		
+		// ART no Pre-ART no Pre-ART start date OpenMRS ID VHW
+		String artNos = identifierStrings(encounter.getPatient().getPatientIdentifiers(
+		    Context.getPatientService().getPatientIdentifierType("ARV Number")));
+		String partNos = identifierStrings(encounter.getPatient().getPatientIdentifiers(
+		    Context.getPatientService().getPatientIdentifierType("PART Number")));
+		String partStart = "(todo)";
+		String patientId = "" + encounter.getPatientId();
+		String vhwName = "(todo)";
+		String name = h(encounter.getPatient().getGivenName()) + " " + h(encounter.getPatient().getFamilyName());
+		String stage = NOT_AVAILABLE;
+		String tbStat = NOT_AVAILABLE;
+		String datePlace = NOT_AVAILABLE;
+		String type = NOT_AVAILABLE;
+		String sex = encounter.getPatient().getGender();
+		String dob = date(encounter.getPatient().getBirthdate());
+		String phone = NOT_AVAILABLE;
+		String cd4 = NOT_AVAILABLE;
+		String cd4P = NOT_AVAILABLE;
+		String ks = NOT_AVAILABLE;
+		String addr = "";
+		Set<PersonAddress> addresses = encounter.getPatient().getAddresses();
+		for (PersonAddress a : addresses) {
+			addr += h(a.getCityVillage()) + " " + h(a.getCountyDistrict()) + ", ";
+		}
+		String cd4Date = NOT_AVAILABLE;
+		String preg = NOT_AVAILABLE;
+		String d4TDate = date(encounter.getEncounterDatetime()); // assume date of initial is date of 1st line regimen
+		//TODO mild: family name: 2928, name 2927
+		String guardianName = "";
+		String hgt = NOT_AVAILABLE;
+		String wgt = NOT_AVAILABLE;
+		String everArv = NOT_AVAILABLE;
+		String alt1stL = NOT_AVAILABLE;
+		String alt1stLDate = NOT_AVAILABLE;
+		String fup = NOT_AVAILABLE;
+		String grel = NOT_AVAILABLE;
+		String gphone = NOT_AVAILABLE;
+		String ageInit = "" + encounter.getPatient().getAge(encounter.getEncounterDatetime()); // assumption based on d4TDate
+		String lastArv = NOT_AVAILABLE;
+		String secondL = NOT_AVAILABLE;
+		String secondLDate = NOT_AVAILABLE;
+		String unknownObs = "";
+		
+		for (Obs o : encounter.getAllObs()) {
+			switch (o.getConcept().getConceptId()) {
+				case 2927:
+					logger.info("Guardian name:" + o.getValueText());
+					guardianName += o.getValueText() + " / ";
+					break;
+				case 2928:
+					logger.info("Guardian name:" + o.getValueText());
+					guardianName += o.getValueText() + " ";
+					break;
+				case 2552:
+					fup = valueCoded(o.getValueCoded().getName());
+					break;
+				case 2170:
+					datePlace = h(o.getValueText()) + " ";
+					break;
+				case 2515:
+					datePlace += date(o.getValueDatetime()) + " ";
+					break;
+				case 5089:
+					wgt = numeric(o.getValueNumeric());
+					break;
+				case 5090:
+					hgt = numeric(o.getValueNumeric());
+					break;
+				case 1480:
+					stage = map(valueCoded(o.getValueCoded().getName()));
+					break;
+				case 5272:
+					preg = map(valueCoded(o.getValueCoded().getName()));
+					break;
+				case 1251:
+				case 2520:
+				case 2298:
+				case 2299:
+				case 2122:
+				case 2743:
+					break;
+				default:
+					logger.warn("Found unknown Observation: " + o.getConcept().getName().getName() + " ("
+					        + o.getConcept().getId() + ")");
+					unknownObs += o.getConcept().getName().getName() + " (" + o.getConcept().getId() + ") " + " | ";
+			}
+		}
+		
+		r += csv("ART no", artNos, "OpenMRS ID", patientId);
+		r += NEWLINE + NEWLINE;
+		r += csv("Patient Guardian details", "", "", "", "", "", "Status at ART initiation", "", "", "", "", "",
+		    "First positive HIV test", "");
+		r += NEWLINE;
+		r += csv("Patient name", name, "", "", "", "", "Clin Stage", stage, "", "", "TB Status at initiation", tbStat,
+		    "Date, Place", datePlace, "Type", type);
+		r += NEWLINE;
+		r += csv("Sex", sex, "DOB", dob, "Patient phone", phone, "CD4 count", cd4, "%", cd4P, "KS", ks, "ART Regimen", "",
+		    "Start date");
+		r += NEWLINE;
+		r += csv("Phys. Address", addr, "", "", "", "", "CD4 date", cd4Date, "", "", "Pregnant at initiation", preg,
+		    "1st Line", "d4T 3TC NVP", d4TDate);
+		r += NEWLINE;
+		r += csv("Guardian Name", guardianName, "", "", "", "", "Height", hgt, "Weight", wgt, "Ever taken ARVs", everArv,
+		    "Alt 1st Line", alt1stL, alt1stLDate);
+		r += NEWLINE;
+		r += csv("Agrees to FUP", fup, "Guardian Relation", grel, "Guardian Phone", gphone, "Age at init.", ageInit, "", "",
+		    "Last ARVs (drug, date)", lastArv, "2nd Line", secondL, secondLDate, "", "Unknown Obs", unknownObs);
+		r += NEWLINE;
+		
+		return r;
+	}
+}
