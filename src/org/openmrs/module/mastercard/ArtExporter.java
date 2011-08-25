@@ -120,9 +120,9 @@ public class ArtExporter {
 			// missing initial
 			logger.warn("  Missing initial, trying to use another encounter");
 			List<Encounter> anyEncounter = es.getEncounters(p, nno, null, null, null, null, null, false);
+			
 			if (anyEncounter.size() > 0) {
-				logger.info("    Going to write exportInitial to BufferedWriter");
-				
+				logger.info("    Going to write exportInitial to BufferedWriter");	
 				headerData = new HeaderData(anyEncounter.get(0));
 				w.write(headerData.getCsvSerialized());
 				w.newLine();
@@ -150,11 +150,11 @@ public class ArtExporter {
 		w.write(EncounterData.getHeaderSerialized());
 		w.newLine();
 		
+		EncounterData encounterDataInitial;
 		if (initial != null) {
 			logger.info("   Initial != null, writing exportFollowup for initial " + initial.getId());
-			
-			headerData = new HeaderData(initial);
-			w.write(headerData.getCsvSerialized());
+			encounterDataInitial = new EncounterData(initial);
+			w.write(encounterDataInitial.getCsvSerialized());
 		}
 		w.newLine();
 		
