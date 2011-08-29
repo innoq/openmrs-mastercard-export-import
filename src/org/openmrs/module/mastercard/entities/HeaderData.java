@@ -63,113 +63,150 @@ public class HeaderData extends AbstractData {
 		}
 		r += Constants.NEWLINE;
 		
+		ObservationDataBean obsDataBean = new ObservationDataBean();
+		
 		// ART no Pre-ART no Pre-ART start date OpenMRS ID VHW
-		String artNos = identifierStrings(encounter.getPatient().getPatientIdentifiers(
-		    Context.getPatientService().getPatientIdentifierType("ARV Number")));
-		String partNos = identifierStrings(encounter.getPatient().getPatientIdentifiers(
-		    Context.getPatientService().getPatientIdentifierType("PART Number")));
-		String partStart = "(todo)";
-		String patientId = "" + encounter.getPatientId();
-		String vhwName = "(todo)";
-		String name = h(encounter.getPatient().getGivenName()) + " " + h(encounter.getPatient().getFamilyName());
-		String stage = Constants.NOT_AVAILABLE;
-		String tbStat = Constants.NOT_AVAILABLE;
-		String datePlace = Constants.NOT_AVAILABLE;
-		String type = Constants.NOT_AVAILABLE;
-		String sex = encounter.getPatient().getGender();
-		String dob = date(encounter.getPatient().getBirthdate());
+		obsDataBean.setArtNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
+		    Context.getPatientService().getPatientIdentifierType("ARV Number"))));
+		obsDataBean.setPartNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
+		    Context.getPatientService().getPatientIdentifierType("PART Number"))));
+		
+		//obsDataBean.setPartStart();
+		obsDataBean.setPatientId(encounter.getPatientId());
+		obsDataBean.setVhwName("todo");
+		obsDataBean.setName(h(encounter.getPatient().getGivenName()) + " / " + h(encounter.getPatient().getFamilyName()));
+		
+		obsDataBean.setSex(encounter.getPatient().getGender());
+		obsDataBean.setDateOfBirth(date(encounter.getPatient().getBirthdate()));
+		
 		String phone = Constants.NOT_AVAILABLE;
-		String cd4 = Constants.NOT_AVAILABLE;
 		String cd4P = Constants.NOT_AVAILABLE;
-		String ks = Constants.NOT_AVAILABLE;
+		
 		String addr = "";
 		Set<PersonAddress> addresses = encounter.getPatient().getAddresses();
 		for (PersonAddress a : addresses) {
 			addr += h(a.getCityVillage()) + " " + h(a.getCountyDistrict()) + ", ";
 		}
-		String cd4Date = Constants.NOT_AVAILABLE;
-		String preg = Constants.NOT_AVAILABLE;
-		String d4TDate = date(encounter.getEncounterDatetime()); // assume date of initial is date of 1st line regimen
-		//TODO mild: family name: 2928, name 2927
-		String guardianName = "";
-		String hgt = Constants.NOT_AVAILABLE;
-		String wgt = Constants.NOT_AVAILABLE;
-		String everArv = Constants.NOT_AVAILABLE;
-		String alt1stL = Constants.NOT_AVAILABLE;
-		String alt1stLDate = Constants.NOT_AVAILABLE;
-		String fup = Constants.NOT_AVAILABLE;
-		String grel = Constants.NOT_AVAILABLE;
-		String gphone = Constants.NOT_AVAILABLE;
-		String ageInit = "" + encounter.getPatient().getAge(encounter.getEncounterDatetime()); // assumption based on d4TDate
-		String lastArv = Constants.NOT_AVAILABLE;
-		String secondL = Constants.NOT_AVAILABLE;
-		String secondLDate = Constants.NOT_AVAILABLE;
-		String unknownObs = "";
 		
 		for (Obs o : encounter.getAllObs()) {
-			switch (o.getConcept().getConceptId()) {
-				case 2927:
-					logger.info("Guardian name:" + o.getValueText());
-					guardianName += o.getValueText() + " / ";
+			switch (o.getConcept().getConceptId().intValue()) {
+			
+				case ObservationDataBean.alt1stLineArvsConceptID:
+					obsDataBean.setAlt1stL(o.getValueText());
 					break;
-				case 2928:
-					logger.info("Guardian name:" + o.getValueText());
-					guardianName += o.getValueText() + " ";
+				
+				case ObservationDataBean.altConceptID:
+					logger.warn("altConceptID " + o.getValueText());
 					break;
-				case 2552:
-					fup = valueCoded(o.getValueCoded().getName());
+				
+				case ObservationDataBean.arvRegimenTypConceptID:
+					logger.warn("arvRegimenTypConceptID " + o.getValueText());
 					break;
-				case 2170:
-					datePlace = h(o.getValueText()) + " ";
+				
+				case ObservationDataBean.dateAntiretroviralsStartedConceptID:
+					obsDataBean.setAlt1stLDate(o.getValueText());
 					break;
-				case 2515:
-					datePlace += date(o.getValueDatetime()) + " ";
+				
+				case ObservationDataBean.guardianFirstNameConceptID:
+					obsDataBean.setGuardianFirstName(o.getValueText());
 					break;
-				case 5089:
-					wgt = numeric(o.getValueNumeric());
+				case ObservationDataBean.guardianLastNameConceptID:
+					obsDataBean.setGuardianLastName(o.getValueText());
 					break;
-				case 5090:
-					hgt = numeric(o.getValueNumeric());
+				case ObservationDataBean.fupConceptID:
+					obsDataBean.setFup(valueCoded(o.getValueCoded().getName()));
 					break;
-				case 1480:
-					stage = map(valueCoded(o.getValueCoded().getName()));
+				case ObservationDataBean.locationWhereTestTookPlaceConceptID:
+					obsDataBean.setLocationWhereTestTookPlace(h(o.getValueText()));
 					break;
-				case 5272:
-					preg = map(valueCoded(o.getValueCoded().getName()));
+				case ObservationDataBean.dateOfHivDiagnososConceptID:
+					obsDataBean.setDateOfHiVDiagnosis(date(o.getValueDatetime()));
 					break;
+				case ObservationDataBean.wgtConceptID:
+					obsDataBean.setWgt(numeric(o.getValueNumeric()));
+					break;
+				case ObservationDataBean.hgtConceptID:
+					obsDataBean.setHgt(numeric(o.getValueNumeric()));
+					break;
+				case ObservationDataBean.stageConceptID:
+					obsDataBean.setStage(map(valueCoded(o.getValueCoded().getName())));
+					break;
+				case ObservationDataBean.pregConceptID:
+					obsDataBean.setPreg(map(valueCoded(o.getValueCoded().getName())));
+					break;
+				case ObservationDataBean.tbStatusConceptID:
+					obsDataBean.setTbStat(map(valueCoded(o.getValueCoded().getName())));
+					break;
+				case ObservationDataBean.typeConceptID:
+					obsDataBean.setType(o.getValueText());
+					break;
+				case ObservationDataBean.sideEffectsYesNoConceptID:
+					obsDataBean.setSideEffects(o.getValueText());
+					break;
+				case ObservationDataBean.sideEffectsCommentsConceptID:
+					obsDataBean.setSideEffectsComments(o.getValueText());
+					break;
+				case ObservationDataBean.sideEffectsOfTreatmentConceptID:
+					obsDataBean.setSideEffectsOfTreatment(o.getValueText());
+					break;
+				case ObservationDataBean.cd4CountConceptID:
+					obsDataBean.setCd4(o.getValueText());
+					break;
+				//case ObservationDataBean.cd4DateConceptID:
+				case ObservationDataBean.dateofCd4CountConceptID:
+					obsDataBean.setCd4Date(o.getValueText());
+					break;
+				case ObservationDataBean.cd4PercentageConceptID:
+					obsDataBean.setCd4Percentage(o.getValueText());
+					break;
+				case ObservationDataBean.cd4PercentageDateTimeConceptID:
+					obsDataBean.setCd4PercentageDateTime(o.getValueText());
+					break;
+				
+				case ObservationDataBean.ksConceptID:
+					obsDataBean.setKs(o.getValueText());
+					break;
+				
 				case 1251:
 				case 2520:
 				case 2298:
 				case 2299:
 				case 2122:
 				case 2743:
+					logger.info("ignored Observation: " + o.getConcept().getName().getName() + " (" + o.getConcept().getId()
+					        + ")");
 					break;
 				default:
 					logger.warn("Found unknown Observation: " + o.getConcept().getName().getName() + " ("
 					        + o.getConcept().getId() + ")");
-					unknownObs += o.getConcept().getName().getName() + " (" + o.getConcept().getId() + ") " + " | ";
+					
 			}
 		}
 		
-		r += csv("ART no", artNos, "OpenMRS ID", patientId);
+		r += csv("ART no", obsDataBean.getArtNos(), "OpenMRS ID", obsDataBean.getPatientId().toString());
 		r += Constants.NEWLINE + Constants.NEWLINE;
 		r += csv("Patient Guardian details", "", "", "", "", "", "Status at ART initiation", "", "", "", "", "",
 		    "First positive HIV test", "");
 		r += Constants.NEWLINE;
-		r += csv("Patient name", name, "", "", "", "", "Clin Stage", stage, "", "", "TB Status at initiation", tbStat,
-		    "Date, Place", datePlace, "Type", type);
+		r += csv("Patient name", obsDataBean.getName(), "", "", "", "", "Clin Stage", obsDataBean.getStage(), "", "",
+		    "TB Status at initiation", obsDataBean.getTbStat(), "Date, Place", obsDataBean.getDatePlace(), "Type",
+		    obsDataBean.getType());
 		r += Constants.NEWLINE;
-		r += csv("Sex", sex, "DOB", dob, "Patient phone", phone, "CD4 count", cd4, "%", cd4P, "KS", ks, "ART Regimen", "",
+		r += csv("Sex", obsDataBean.getSex(), "DOB", obsDataBean.getDateOfBirth(), "Patient phone", phone, "CD4 count",
+		    obsDataBean.getCd4(), "%", obsDataBean.getCd4Percentage(), "KS", obsDataBean.getKs(), "ART Regimen", "",
 		    "Start date");
 		r += Constants.NEWLINE;
-		r += csv("Phys. Address", addr, "", "", "", "", "CD4 date", cd4Date, "", "", "Pregnant at initiation", preg,
-		    "1st Line", "d4T 3TC NVP", d4TDate);
+		r += csv("Phys. Address", obsDataBean.getAddr(), "", "", "", "", "CD4 date", obsDataBean.getCd4Date(), "", "",
+		    "Pregnant at initiation", obsDataBean.getPreg(), "1st Line", "d4T 3TC NVP", obsDataBean.getD4TDate());
 		r += Constants.NEWLINE;
-		r += csv("Guardian Name", guardianName, "", "", "", "", "Height", hgt, "Weight", wgt, "Ever taken ARVs", everArv,
-		    "Alt 1st Line", alt1stL, alt1stLDate);
+		r += csv("Guardian Name", obsDataBean.getGuardianName(), "", "", "", "", "Height", obsDataBean.getHgt(), "Weight",
+		    obsDataBean.getWgt(), "Ever taken ARVs", obsDataBean.getEverArv(), "Alt 1st Line", obsDataBean.getAlt1stL(),
+		    obsDataBean.getAlt1stLDate());
 		r += Constants.NEWLINE;
-		r += csv("Agrees to FUP", fup, "Guardian Relation", grel, "Guardian Phone", gphone, "Age at init.", ageInit, "", "",
-		    "Last ARVs (drug, date)", lastArv, "2nd Line", secondL, secondLDate, "", "Unknown Obs", unknownObs);
+		r += csv("Agrees to FUP", obsDataBean.getFup(), "Guardian Relation", obsDataBean.getGrel(), "Guardian Phone",
+		    obsDataBean.getGphone(), "Age at init.", obsDataBean.getAgeInit(), "", "", "Last ARVs (drug, date)",
+		    obsDataBean.getLastArv(), "2nd Line", obsDataBean.getSecondL(), obsDataBean.getSecondLDate(), "", "Unknown Obs",
+		    obsDataBean.getUnknownObs());
 		r += Constants.NEWLINE;
 		
 		return r;
