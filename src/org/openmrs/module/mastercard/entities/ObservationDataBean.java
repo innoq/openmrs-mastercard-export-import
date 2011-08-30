@@ -39,10 +39,16 @@ public class ObservationDataBean {
 	
 	public final static int cd4PercentageDateTimeConceptID = 7030;
 	
+	public final static int cptGivenConceptID = 3590;
+	
+	public final static int cptDateConceptID = 7024;
+	
 	public final static int cd4DateTimeConceptID = 5499;
 	
 	//datePlace II
 	public final static int dateOfHivDiagnososConceptID = 2515;
+	
+	public final static int dosesMissedConceptId = 2973;
 	
 	//not yet used
 	public final static int dateAntiretroviralsStartedConceptID = 2516;
@@ -76,11 +82,61 @@ public class ObservationDataBean {
 	
 	public final static int outcomeConceptID = 2530;
 	
+	public final static int phoneNumberCountConceptID = 1426;
+	
+	public final static int phoneTypeCountConceptID = 2613;
+	
 	public final static int pillCountConceptID = 2540;
 	
 	public final static int pregConceptID = 5272;
 	
-	public final static int regimenConceptID = 2538;
+	/**
+	 * @return the arvRegimen
+	 */
+	public String getArvRegimen() {
+		return arvRegimen;
+	}
+	
+	/**
+	 * @param arvRegimen the arvRegimen to set
+	 */
+	public void setArvRegimen(String arvRegimen) {
+		this.arvRegimen = arvRegimen;
+	}
+	
+	/**
+	 * @return the arvDrugsReceived
+	 */
+	public String getArvDrugsReceived() {
+		return arvDrugsReceived;
+	}
+	
+	/**
+	 * @param arvDrugsReceived the arvDrugsReceived to set
+	 */
+	public void setArvDrugsReceived(String arvDrugsReceived) {
+		this.arvDrugsReceived = arvDrugsReceived;
+	}
+	
+	/**
+	 * @return the sideEffects
+	 */
+	public String getSideEffects() {
+		return sideEffects;
+	}
+	
+	/**
+	 * @param sideEffects the sideEffects to set
+	 */
+	public void setSideEffects(String sideEffects) {
+		this.sideEffects = sideEffects;
+	}
+	
+	//regimen
+	public final static int statusOfArvRegimen = 2538;
+	
+	//new Regimen
+	public final static int arvDrugsReceivedConceptID = 2589;
 	
 	public final static int sexConceptID = 5923;
 	
@@ -100,49 +156,51 @@ public class ObservationDataBean {
 	
 	public final static int typeConceptID = 6773;
 	
+	public final static int vhwProgramConceptID = 3568;
+	
 	public final static int wgtConceptID = 5089;
 	
 	//TODO mild: get the ID
 	//public final static int cd4PConceptID = null;
 	
-	public final static int igno01Name2ConceptID = 968;
+	public final static int igno01DateOfLastMenstrualBlood2ConceptID = 968;
 	
-	public final static int igno02Name2ConceptID = 1251;
+	public final static int igno02ReasonAntiretroviralsStarted2ConceptID = 1251;
 	
 	public final static int igno03Name2ConceptID = 1620;
 	
-	public final static int igno04Name2ConceptID = 1662;
+	public final static int igno04CommentsAtConclustionOfExamination2ConceptID = 1662;
 	
-	public final static int igno05Name2ConceptID = 1623;
+	public final static int igno05IsOnCpt2ConceptID = 1623;
 	
-	public final static int igno06Name2ConceptID = 2122;
+	public final static int igno06GuardianPresent2ConceptID = 2122;
 	
-	public final static int igno07Name2ConceptID = 2298;
+	public final static int igno07LastNameCommunityHealthWorkerReportedConceptID = 2298;
 	
-	public final static int igno08Name2ConceptID = 2299;
+	public final static int igno07FirstNameCommunityHealthWorkerReportedConceptID = 2299;
 	
-	public final static int igno09Name2ConceptID = 2520;
+	public final static int igno09HiVDiagnososConstructConceptID = 2520;
 	
-	public final static int igno10Name2ConceptID = 2536;
+	public final static int igno10TransferInConceptID = 2536;
 	
-	public final static int igno11Name2ConceptID = 2539;
+	public final static int igno11GoesToWorkOrSchoolConceptID = 2539;
 	
 	public final static int igno12Name2ConceptID = 2541;
 	
-	public final static int igno13Name2ConceptID = 2542;
+	public final static int igno13TinsOfAntiretroviralsGivenToPatientConceptID = 2542;
 	
-	public final static int igno14Name2ConceptID = 2743;
+	public final static int igno14WhoStageCriteriaPresentConceptID = 2743;
 	
-	public final static int igno15Name2ConceptID = 2922;
+	public final static int igno15DataClerkCommentsConceptID = 2922;
 	
-	public final static int igno16Name2ConceptID = 2972;
+	public final static int igno16LikuniPhalaGivenToPatientConceptID = 2972;
 	
 	//pregConceptId
 	//public final static int igno17Name2ConceptID = 5272;
 	
-	public final static int igno18Name2ConceptID = 6784;
+	public final static int igno18AppointmentReasonOrTypeConceptID = 6784;
 	
-	public final static int igno19Name2ConceptID = 6785;
+	public final static int igno19AppointmentSetConceptID = 6785;
 	
 	/**
 	 * @return the addresses
@@ -243,6 +301,27 @@ public class ObservationDataBean {
 	}
 	
 	/**
+	 * @return the noOfArvGiven
+	 */
+	public Double getNoOfArvGiven() {
+		return noOfArvGiven;
+	}
+	
+	public String getNoOfArvGivenAsString() {
+		if (noOfArvGiven != null)
+			return noOfArvGiven.toString();
+		else
+			return Constants.NOT_AVAILABLE;
+	}
+	
+	/**
+	 * @param noOfArvGiven the noOfArvGiven to set
+	 */
+	public void setNoOfArvGiven(Double noOfArvGiven) {
+		this.noOfArvGiven = noOfArvGiven;
+	}
+	
+	/**
 	 * @return the stage
 	 */
 	public String getStage() {
@@ -282,6 +361,20 @@ public class ObservationDataBean {
 	 */
 	public void setDatePlace(String datePlace) {
 		throw new NoClassDefFoundError();
+	}
+	
+	/**
+	 * @return the dosesMissed
+	 */
+	public String getDosesMissed() {
+		return dosesMissed;
+	}
+	
+	/**
+	 * @param dosesMissed the dosesMissed to set
+	 */
+	public void setDosesMissed(String dosesMissed) {
+		this.dosesMissed = dosesMissed;
 	}
 	
 	/**
@@ -721,14 +814,14 @@ public class ObservationDataBean {
 	/**
 	 * @return the sideEffects
 	 */
-	public String getSideEffects() {
+	public String getSideEffectsYesNo() {
 		return sideEffects;
 	}
 	
 	/**
 	 * @param sideEffects the sideEffects to set
 	 */
-	public void setSideEffects(String sideEffects) {
+	public void setSideEffectsYesNo(String sideEffects) {
 		this.sideEffects = sideEffects;
 	}
 	
@@ -764,7 +857,101 @@ public class ObservationDataBean {
 	
 	Set<PersonAddress> addresses = null;
 	
+	private String addr = Constants.NOT_AVAILABLE;
+	
+	private String alt1stL = Constants.NOT_AVAILABLE;
+	
+	private String alt1stLDate = Constants.NOT_AVAILABLE;
+	
 	private String artNos = Constants.NOT_AVAILABLE;
+	
+	private String cd4 = Constants.NOT_AVAILABLE;
+	
+	private String cd4P = Constants.NOT_AVAILABLE;
+	
+	private String cd4Date = Constants.NOT_AVAILABLE;
+	
+	private String cd4Percentage = Constants.NOT_AVAILABLE;
+	
+	private String cd4PercentageDateTime = Constants.NOT_AVAILABLE;
+	
+	/**
+	 * @return the cp4tGivem
+	 */
+	public String getCp4tGiven() {
+		return cp4tGiven;
+	}
+	
+	public String getCp4tGivenAsString() {
+		if (cp4tGiven != null)
+			return cp4tGiven.toString();
+		else
+			return Constants.NOT_AVAILABLE;
+	}
+	
+	/**
+	 * @param cp4tGivem the cp4tGivem to set
+	 */
+	public void setCp4tGiven(String cp4tGiven) {
+		this.cp4tGiven = cp4tGiven;
+	}
+	
+	/**
+	 * @return the cp4TDate
+	 */
+	public String getCp4TDate() {
+		return cp4TDate;
+	}
+	
+	/**
+	 * @param cp4tDate the cp4TDate to set
+	 */
+	public void setCp4TDate(String cp4tDate) {
+		cp4TDate = cp4tDate;
+	}
+	
+	private String cp4tGiven = Constants.NOT_AVAILABLE;
+	
+	private String cp4TDate = Constants.NOT_AVAILABLE;
+	
+	private String d4TDate = Constants.NOT_AVAILABLE;
+	
+	private String dateOfBirth = Constants.NOT_AVAILABLE;
+	
+	//DatePlace II
+	private String dateOfHiVDiagnosis = Constants.NOT_AVAILABLE;
+	
+	private String dosesMissed = Constants.NOT_AVAILABLE;
+	
+	private String guardianFirstName = Constants.NOT_AVAILABLE;
+	
+	private String guardianLastName = Constants.NOT_AVAILABLE;
+	
+	private String ks = Constants.NOT_AVAILABLE;
+	
+	//DatePlace I
+	private String locationWhereTestTookPlace = Constants.NOT_AVAILABLE;
+	
+	//Header: todo
+	private String name = Constants.NOT_AVAILABLE;
+	
+	private Double noOfArvGiven = null;
+	
+	private String outcome = Constants.NOT_AVAILABLE;
+	
+	/**
+	 * @return the outcome
+	 */
+	public String getOutcome() {
+		return outcome;
+	}
+	
+	/**
+	 * @param outcome the outcome to set
+	 */
+	public void setOutcome(String outcome) {
+		this.outcome = outcome;
+	}
 	
 	//Header: todo
 	private String partNos = Constants.NOT_AVAILABLE;
@@ -773,50 +960,40 @@ public class ObservationDataBean {
 	
 	private Integer patientId = null;
 	
-	private String guardianFirstName = Constants.NOT_AVAILABLE;
+	private Double pillCount = null;
 	
-	private String guardianLastName = Constants.NOT_AVAILABLE;
+	/**
+	 * @return the pillCount
+	 */
+	public Double getPillCount() {
+		return pillCount;
+	}
 	
-	//Header: todo
-	private String vhwName = Constants.NOT_AVAILABLE;
+	public String getPillCountAsString() {
+		if (pillCount != null)
+			return pillCount.toString();
+		else
+			return Constants.NOT_AVAILABLE;
+	}
 	
-	private String name = Constants.NOT_AVAILABLE;
+	/**
+	 * @param pillCount the pillCount to set
+	 */
+	public void setPillCount(Double pillCount) {
+		this.pillCount = pillCount;
+	}
+	
+	private String phone = Constants.NOT_AVAILABLE;
+	
+	private String preg = Constants.NOT_AVAILABLE;
+	
+	private String sex = Constants.NOT_AVAILABLE;
 	
 	private String stage = Constants.NOT_AVAILABLE;
 	
 	private String tbStat = Constants.NOT_AVAILABLE;
 	
-	//DatePlace I
-	private String locationWhereTestTookPlace = Constants.NOT_AVAILABLE;
-	
-	//DatePlace II
-	private String dateOfHiVDiagnosis = Constants.NOT_AVAILABLE;
-	
-	private String type = Constants.NOT_AVAILABLE;
-	
-	private String sex = Constants.NOT_AVAILABLE;
-	
-	private String dateOfBirth = Constants.NOT_AVAILABLE;
-	
-	private String phone = Constants.NOT_AVAILABLE;
-	
-	private String cd4 = Constants.NOT_AVAILABLE;
-	
-	private String cd4P = Constants.NOT_AVAILABLE;
-	
-	private String ks = Constants.NOT_AVAILABLE;
-	
-	private String addr = Constants.NOT_AVAILABLE;
-	
-	private String cd4Date = Constants.NOT_AVAILABLE;
-	
-	private String cd4Percentage = Constants.NOT_AVAILABLE;
-	
-	private String cd4PercentageDateTime = Constants.NOT_AVAILABLE;
-	
-	private String preg = Constants.NOT_AVAILABLE;
-	
-	private String d4TDate = Constants.NOT_AVAILABLE;
+	private String vhwName = Constants.NOT_AVAILABLE;
 	
 	private String hgt = Constants.NOT_AVAILABLE;
 	
@@ -824,11 +1001,9 @@ public class ObservationDataBean {
 	
 	private String everArv = Constants.NOT_AVAILABLE;
 	
-	private String alt1stL = Constants.NOT_AVAILABLE;
-	
-	private String alt1stLDate = Constants.NOT_AVAILABLE;
-	
 	private String fup = Constants.NOT_AVAILABLE;
+	
+	private String type = Constants.NOT_AVAILABLE;
 	
 	private String grel = Constants.NOT_AVAILABLE;
 	
@@ -837,6 +1012,10 @@ public class ObservationDataBean {
 	private String ageInit = Constants.NOT_AVAILABLE;
 	
 	private String lastArv = Constants.NOT_AVAILABLE;
+	
+	private String arvRegimen = Constants.NOT_AVAILABLE;
+	
+	private String arvDrugsReceived = Constants.NOT_AVAILABLE;
 	
 	private String secondL = Constants.NOT_AVAILABLE;
 	

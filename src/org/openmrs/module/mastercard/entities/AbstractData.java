@@ -21,8 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
 import org.openmrs.ConceptName;
 import org.openmrs.Encounter;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientProgram;
@@ -38,6 +40,8 @@ import org.openmrs.module.mastercard.Helper;
 public abstract class AbstractData {
 	
 	String stringRepresentation = null;
+	
+	static Logger logger = Logger.getLogger(AbstractData.class);
 	
 	public AbstractData(Encounter e) {
 		super();
@@ -67,8 +71,6 @@ public abstract class AbstractData {
 	}
 	
 	protected abstract String extractEncounterData(Encounter e);
-	
-
 	
 	private Helper h = new Helper();
 	
@@ -174,5 +176,183 @@ public abstract class AbstractData {
 	
 	protected String h(String string) {
 		return string == null ? "" : string;
+	}
+	
+	/**
+	 * Auto generated method comment
+	 * 
+	 * @param encounter
+	 * @param obsDataBean
+	 */
+	protected void extractObservations(Encounter encounter, ObservationDataBean obsDataBean) {
+		
+		// ART no Pre-ART no Pre-ART start date OpenMRS ID VHW
+		obsDataBean.setArtNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
+		    Context.getPatientService().getPatientIdentifierType("ARV Number"))));
+		obsDataBean.setPartNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
+		    Context.getPatientService().getPatientIdentifierType("PART Number"))));
+		
+		//obsDataBean.setPartStart();
+		obsDataBean.setPatientId(encounter.getPatientId());
+		
+		obsDataBean.setName(h(encounter.getPatient().getGivenName()) + " / " + h(encounter.getPatient().getFamilyName()));
+		
+		obsDataBean.setSex(encounter.getPatient().getGender());
+		obsDataBean.setDateOfBirth(date(encounter.getPatient().getBirthdate()));
+		
+		for (Obs o : encounter.getAllObs()) {
+			switch (o.getConcept().getConceptId().intValue()) {
+			
+				case ObservationDataBean.vhwProgramConceptID:
+					obsDataBean.setVhwName(o.getValueText());
+					break;
+				
+				case ObservationDataBean.phoneNumberCountConceptID:
+					obsDataBean.setPhone(o.getValueText());
+					break;
+				
+				case ObservationDataBean.alt1stLineArvsConceptID:
+					obsDataBean.setAlt1stL(o.getValueText());
+					break;
+				
+				case ObservationDataBean.altConceptID:
+					logger.warn("altConceptID " + o.getValueText());
+					break;
+				
+				case ObservationDataBean.arvRegimenTypConceptID:
+					obsDataBean.setArvRegimen(o.getValueText());
+					logger.warn("arvRegimenTypConceptID " + o.getValueText());
+					break;
+				
+				case ObservationDataBean.dateAntiretroviralsStartedConceptID:
+					obsDataBean.setAlt1stLDate(o.getValueText());
+					break;
+				
+				case ObservationDataBean.guardianFirstNameConceptID:
+					obsDataBean.setGuardianFirstName(o.getValueText());
+					break;
+				case ObservationDataBean.guardianLastNameConceptID:
+					obsDataBean.setGuardianLastName(o.getValueText());
+					break;
+				case ObservationDataBean.fupConceptID:
+					obsDataBean.setFup(valueCoded(o.getValueCoded().getName()));
+					break;
+				case ObservationDataBean.locationWhereTestTookPlaceConceptID:
+					obsDataBean.setLocationWhereTestTookPlace(h(o.getValueText()));
+					break;
+				case ObservationDataBean.dateOfHivDiagnososConceptID:
+					obsDataBean.setDateOfHiVDiagnosis(date(o.getValueDatetime()));
+					break;
+				case ObservationDataBean.wgtConceptID:
+					obsDataBean.setWgt(numeric(o.getValueNumeric()));
+					break;
+				case ObservationDataBean.hgtConceptID:
+					obsDataBean.setHgt(numeric(o.getValueNumeric()));
+					break;
+				case ObservationDataBean.sideEffectsYesNoConceptID:
+					if (o.getValueNumeric() == null || o.getValueNumeric() == 0) {
+						obsDataBean.setSideEffectsYesNo("No");
+					}
+					break;
+				case ObservationDataBean.sideEffectsStringConceptID:
+					obsDataBean.setSideEffectsOfTreatment(map(valueCoded(o.getValueCoded().getName())));
+					break;
+				case ObservationDataBean.sideEffectsCommentsConceptID:
+					obsDataBean.setSideEffectsComments(o.getValueText());
+					break;
+				case ObservationDataBean.sideEffectsOfTreatmentConceptID:
+					obsDataBean.setSideEffectsOfTreatment(o.getValueText());
+					break;
+				case ObservationDataBean.stageConceptID:
+					obsDataBean.setStage(map(valueCoded(o.getValueCoded().getName())));
+					break;
+				case ObservationDataBean.pregConceptID:
+					obsDataBean.setPreg(map(valueCoded(o.getValueCoded().getName())));
+					break;
+				case ObservationDataBean.tbStatusConceptID:
+					obsDataBean.setTbStat(map(valueCoded(o.getValueCoded().getName())));
+					break;
+				case ObservationDataBean.typeConceptID:
+					obsDataBean.setType(o.getValueText());
+					break;
+				case ObservationDataBean.cd4CountConceptID:
+					obsDataBean.setCd4(o.getValueText());
+					break;
+				//case ObservationDataBean.cd4DateConceptID:
+				case ObservationDataBean.dateofCd4CountConceptID:
+					obsDataBean.setCd4Date(o.getValueText());
+					break;
+				case ObservationDataBean.cd4PercentageConceptID:
+					obsDataBean.setCd4Percentage(o.getValueText());
+					break;
+				case ObservationDataBean.cd4PercentageDateTimeConceptID:
+					obsDataBean.setCd4PercentageDateTime(o.getValueText());
+					break;
+				
+				case ObservationDataBean.dosesMissedConceptId:
+					obsDataBean.setDosesMissed(o.getValueText());
+					break;
+				
+				case ObservationDataBean.ksConceptID:
+					obsDataBean.setKs(o.getValueText());
+					break;
+				
+				case ObservationDataBean.statusOfArvRegimen:
+					obsDataBean.setArvRegimen(o.getValueText());
+					break;
+				
+				case ObservationDataBean.arvDrugsReceivedConceptID:
+					obsDataBean.setArvDrugsReceived(o.getValueText());
+					break;
+				
+				case ObservationDataBean.noOfArvGivenConceptID:
+					obsDataBean.setNoOfArvGiven(o.getValueNumeric());
+					break;
+				
+				case ObservationDataBean.pillCountConceptID:
+					obsDataBean.setPillCount(o.getValueNumeric());
+					break;
+				
+				case ObservationDataBean.outcomeConceptID:
+					obsDataBean.setOutcome(o.getValueText());
+					break;
+				
+				case ObservationDataBean.cptGivenConceptID:
+					obsDataBean.setCp4tGiven(o.getValueText());
+					break;
+				
+				case ObservationDataBean.cptDateConceptID:
+					obsDataBean.setCp4TDate(o.getValueText());
+					break;
+				
+				case ObservationDataBean.igno01DateOfLastMenstrualBlood2ConceptID:
+				case ObservationDataBean.igno02ReasonAntiretroviralsStarted2ConceptID:
+				case ObservationDataBean.igno03Name2ConceptID:
+				case ObservationDataBean.igno04CommentsAtConclustionOfExamination2ConceptID:
+				case ObservationDataBean.igno05IsOnCpt2ConceptID:
+				case ObservationDataBean.igno06GuardianPresent2ConceptID:
+				case ObservationDataBean.igno07LastNameCommunityHealthWorkerReportedConceptID:
+				case ObservationDataBean.igno07FirstNameCommunityHealthWorkerReportedConceptID:
+				case ObservationDataBean.igno09HiVDiagnososConstructConceptID:
+				case ObservationDataBean.igno10TransferInConceptID:
+				case ObservationDataBean.igno11GoesToWorkOrSchoolConceptID:
+				case ObservationDataBean.igno12Name2ConceptID:
+				case ObservationDataBean.igno13TinsOfAntiretroviralsGivenToPatientConceptID:
+				case ObservationDataBean.igno14WhoStageCriteriaPresentConceptID:
+				case ObservationDataBean.igno15DataClerkCommentsConceptID:
+				case ObservationDataBean.igno16LikuniPhalaGivenToPatientConceptID:
+				case ObservationDataBean.igno18AppointmentReasonOrTypeConceptID:
+				case ObservationDataBean.igno19AppointmentSetConceptID:
+					try {
+						logger.info("ignored Observation: " + o.getConcept().getName() + " (" + o.getConcept().getId() + ")");
+					}
+					catch (NullPointerException e) {}
+					break;
+				default:
+					logger.warn("Found unknown Observation): " + o.getConcept().getName() + " (" + o.getConcept().getId()
+					        + ")");
+					
+			}
+		}
 	}
 }

@@ -122,7 +122,7 @@ public class ArtExporter {
 			List<Encounter> anyEncounter = es.getEncounters(p, nno, null, null, null, null, null, false);
 			
 			if (anyEncounter.size() > 0) {
-				logger.info("    Going to write exportInitial to BufferedWriter");	
+				logger.info("    Going to write exportInitial to BufferedWriter");
 				headerData = new HeaderData(anyEncounter.get(0));
 				w.write(headerData.getCsvSerialized());
 				w.newLine();
@@ -167,14 +167,11 @@ public class ArtExporter {
 		for (Encounter e : el) {
 			
 			EncounterData encounterDate;
-			try {
-				encounterDate = new EncounterData(e);
-				w.write(encounterDate.getCsvSerialized());
-				w.newLine();
-			}
-			catch (Throwable t) {
-				logger.error(t);
-			}
+			
+			encounterDate = new EncounterData(e);
+			w.write(encounterDate.getCsvSerialized());
+			w.newLine();
+			
 		}
 		w.close();
 	}

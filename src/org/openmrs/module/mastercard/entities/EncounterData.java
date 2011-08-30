@@ -40,93 +40,45 @@ public class EncounterData extends AbstractData {
 		    "Comment", "Next appointment", "Unknown Obs");
 	}
 	
-	protected String extractEncounterData(Encounter e) {
-		logger.info("exportFollowup(Encounter " + e.getId() + ")");
-		Set<Obs> obss = e.getAllObs();
-		String loc = map(e.getLocation().getName());
-		String date = date(e.getEncounterDatetime());
-		String hgt = Constants.NOT_AVAILABLE;
-		String wgt = Constants.NOT_AVAILABLE;
-		PatientState s = currentProgramWorkflowStatus(1, e.getPatient(), e.getEncounterDatetime());
-		String outcomeEnrollment = outcomeEnrollment(s);
-		String outcome = Constants.NOT_AVAILABLE;
-		String outcomeDate = ("".equals(outcomeEnrollment) ? "" : date(s.getStartDate()));
-		String regimen = Constants.NOT_AVAILABLE;
-		String sideEffects = "";
-		String tb = Constants.NOT_AVAILABLE;
-		String pillCount = Constants.NOT_AVAILABLE;
-		String dosesMissed = Constants.NOT_AVAILABLE;
-		String noOfArvGiven = Constants.NOT_AVAILABLE;
-		String arvsGivenTo = Constants.NOT_AVAILABLE;
-		String cptNo = Constants.NOT_AVAILABLE;
-		String comments = Constants.NOT_AVAILABLE;
-		String nextAppt = Constants.NOT_AVAILABLE;
-		String unknownObs = "";
-		for (Obs o : obss) {
-			switch (o.getConcept().getConceptId()) {
-				case 5090:
-					hgt = numeric(o.getValueNumeric());
-					break;
-				case 5089:
-					wgt = numeric(o.getValueNumeric());
-					break;
-				case 2530:
-					outcome = map(valueCoded(o.getValueCodedName()));
-					break;
-				case 2538:
-					regimen = map(valueCoded(o.getValueCodedName()));
-					break;
-				case 2589:
-					// new regimen
-					break;
-				case 2146:
-					if (o.getValueNumeric() == null || o.getValueNumeric() == 0) {
-						sideEffects += "No ";
-					}
-					break;
-				case 1297:
-					sideEffects += map(valueCoded(o.getValueCoded().getName())) + " ";
-					break;
-				case 7459:
-					// tbstatus
-					break;
-				case 2540:
-					pillCount = numeric(o.getValueNumeric());
-					break;
-				// doses missed
-				case 2929:
-					noOfArvGiven = numeric(o.getValueNumeric());
-					break;
-				// cpt no
-				// comment
-				case 5096:
-					nextAppt = date(o.getValueDatetime());
-					break;
-				case 1620:
-				case 1623:
-				case 6784:
-				case 6785:
-				case 2541:
-				case 2922:
-				case 968:
-				case 2542:
-				case 2972:
-				case 1662: // really?
-				case 2536: // really?
-				case 2539: // really?
-				case 5272: // really?
-				case 2122: // really?
-					break;
-				default:
-					logger.warn("Found unknown Observation: " + o.getConcept().getName().getName() + " ("
-					        + o.getConcept().getId() + ")");
-					unknownObs += o.getConcept().getName().getName() + " (" + o.getConcept().getId() + ") " + " | ";
-			}
-		}
+	protected String extractEncounterData(Encounter encounter) {
+		logger.info("exportFollowup(Encounter " + encounter.getId() + ")");
 		
-		return csv(loc, date, hgt, wgt, outcomeEnrollment, outcome, outcomeDate, regimen, sideEffects, tb, pillCount,
-		    dosesMissed, noOfArvGiven, arvsGivenTo, cptNo, comments, nextAppt, unknownObs);
+		ObservationDataBean obsDataBean = new ObservationDataBean();
 		
+		extractObservations(encounter, obsDataBean);
+		
+		return renderEncounterToCsv(encounter, obsDataBean);
 	}
 	
+	/**
+	 * Auto generated method comment
+	 * 
+	 * @param encounter
+	 * @param obsDataBean
+	 * @return
+	 */
+	private String renderEncounterToCsv(Encounter encounter, ObservationDataBean obsDataBean) {
+		
+		String loc = map(encounter.getLocation().getName());
+		String date = date(encounter.getEncounterDatetime());
+		
+		//PatientState s = currentProgramWorkflowStatus(1, encounter.getPatient(), encounter.getEncounterDatetime());
+		
+		String outcomeEnrollment = Constants.NOT_AVAILABLE;
+		; //outcomeEnrollment(s);
+		
+		String outcomeDate = Constants.NOT_AVAILABLE;//("".equals(outcomeEnrollment) ? "" : date(s.getStartDate()));
+		
+		String comments = Constants.NOT_AVAILABLE;
+		String nextAppt = Constants.NOT_AVAILABLE;
+		String unknownObs = Constants.NOT_AVAILABLE;
+		
+		return csv(loc, date, obsDataBean.getHgt(), obsDataBean.getWgt(), outcomeEnrollment,
+		    //obsDataBean.getOutcome(),
+		    outcomeDate,
+		    //obsDataBean.getArvRegimen(), 
+		    obsDataBean.getSideEffectsYesNo(), obsDataBean.getTbStat(), obsDataBean.getPillCountAsString(),
+		    obsDataBean.getDosesMissed(), obsDataBean.getNoOfArvGivenAsString(), /* doses missed?*/
+		    obsDataBean.getNoOfArvGivenAsString(), obsDataBean.getCp4tGivenAsString(), comments, nextAppt, unknownObs); //unknownObs
+	}
 }

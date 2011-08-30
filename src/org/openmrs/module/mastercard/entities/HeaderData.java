@@ -65,122 +65,14 @@ public class HeaderData extends AbstractData {
 		
 		ObservationDataBean obsDataBean = new ObservationDataBean();
 		
-		// ART no Pre-ART no Pre-ART start date OpenMRS ID VHW
-		obsDataBean.setArtNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
-		    Context.getPatientService().getPatientIdentifierType("ARV Number"))));
-		obsDataBean.setPartNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
-		    Context.getPatientService().getPatientIdentifierType("PART Number"))));
+		extractObservations(encounter, obsDataBean);
 		
-		//obsDataBean.setPartStart();
-		obsDataBean.setPatientId(encounter.getPatientId());
-		obsDataBean.setVhwName("todo");
-		obsDataBean.setName(h(encounter.getPatient().getGivenName()) + " / " + h(encounter.getPatient().getFamilyName()));
-		
-		obsDataBean.setSex(encounter.getPatient().getGender());
-		obsDataBean.setDateOfBirth(date(encounter.getPatient().getBirthdate()));
-		
-		String phone = Constants.NOT_AVAILABLE;
-		String cd4P = Constants.NOT_AVAILABLE;
+
 		
 		String addr = "";
 		Set<PersonAddress> addresses = encounter.getPatient().getAddresses();
 		for (PersonAddress a : addresses) {
 			addr += h(a.getCityVillage()) + " " + h(a.getCountyDistrict()) + ", ";
-		}
-		
-		for (Obs o : encounter.getAllObs()) {
-			switch (o.getConcept().getConceptId().intValue()) {
-			
-				case ObservationDataBean.alt1stLineArvsConceptID:
-					obsDataBean.setAlt1stL(o.getValueText());
-					break;
-				
-				case ObservationDataBean.altConceptID:
-					logger.warn("altConceptID " + o.getValueText());
-					break;
-				
-				case ObservationDataBean.arvRegimenTypConceptID:
-					logger.warn("arvRegimenTypConceptID " + o.getValueText());
-					break;
-				
-				case ObservationDataBean.dateAntiretroviralsStartedConceptID:
-					obsDataBean.setAlt1stLDate(o.getValueText());
-					break;
-				
-				case ObservationDataBean.guardianFirstNameConceptID:
-					obsDataBean.setGuardianFirstName(o.getValueText());
-					break;
-				case ObservationDataBean.guardianLastNameConceptID:
-					obsDataBean.setGuardianLastName(o.getValueText());
-					break;
-				case ObservationDataBean.fupConceptID:
-					obsDataBean.setFup(valueCoded(o.getValueCoded().getName()));
-					break;
-				case ObservationDataBean.locationWhereTestTookPlaceConceptID:
-					obsDataBean.setLocationWhereTestTookPlace(h(o.getValueText()));
-					break;
-				case ObservationDataBean.dateOfHivDiagnososConceptID:
-					obsDataBean.setDateOfHiVDiagnosis(date(o.getValueDatetime()));
-					break;
-				case ObservationDataBean.wgtConceptID:
-					obsDataBean.setWgt(numeric(o.getValueNumeric()));
-					break;
-				case ObservationDataBean.hgtConceptID:
-					obsDataBean.setHgt(numeric(o.getValueNumeric()));
-					break;
-				case ObservationDataBean.stageConceptID:
-					obsDataBean.setStage(map(valueCoded(o.getValueCoded().getName())));
-					break;
-				case ObservationDataBean.pregConceptID:
-					obsDataBean.setPreg(map(valueCoded(o.getValueCoded().getName())));
-					break;
-				case ObservationDataBean.tbStatusConceptID:
-					obsDataBean.setTbStat(map(valueCoded(o.getValueCoded().getName())));
-					break;
-				case ObservationDataBean.typeConceptID:
-					obsDataBean.setType(o.getValueText());
-					break;
-				case ObservationDataBean.sideEffectsYesNoConceptID:
-					obsDataBean.setSideEffects(o.getValueText());
-					break;
-				case ObservationDataBean.sideEffectsCommentsConceptID:
-					obsDataBean.setSideEffectsComments(o.getValueText());
-					break;
-				case ObservationDataBean.sideEffectsOfTreatmentConceptID:
-					obsDataBean.setSideEffectsOfTreatment(o.getValueText());
-					break;
-				case ObservationDataBean.cd4CountConceptID:
-					obsDataBean.setCd4(o.getValueText());
-					break;
-				//case ObservationDataBean.cd4DateConceptID:
-				case ObservationDataBean.dateofCd4CountConceptID:
-					obsDataBean.setCd4Date(o.getValueText());
-					break;
-				case ObservationDataBean.cd4PercentageConceptID:
-					obsDataBean.setCd4Percentage(o.getValueText());
-					break;
-				case ObservationDataBean.cd4PercentageDateTimeConceptID:
-					obsDataBean.setCd4PercentageDateTime(o.getValueText());
-					break;
-				
-				case ObservationDataBean.ksConceptID:
-					obsDataBean.setKs(o.getValueText());
-					break;
-				
-				case 1251:
-				case 2520:
-				case 2298:
-				case 2299:
-				case 2122:
-				case 2743:
-					logger.info("ignored Observation: " + o.getConcept().getName().getName() + " (" + o.getConcept().getId()
-					        + ")");
-					break;
-				default:
-					logger.warn("Found unknown Observation: " + o.getConcept().getName().getName() + " ("
-					        + o.getConcept().getId() + ")");
-					
-			}
 		}
 		
 		r += csv("ART no", obsDataBean.getArtNos(), "OpenMRS ID", obsDataBean.getPatientId().toString());
@@ -192,9 +84,9 @@ public class HeaderData extends AbstractData {
 		    "TB Status at initiation", obsDataBean.getTbStat(), "Date, Place", obsDataBean.getDatePlace(), "Type",
 		    obsDataBean.getType());
 		r += Constants.NEWLINE;
-		r += csv("Sex", obsDataBean.getSex(), "DOB", obsDataBean.getDateOfBirth(), "Patient phone", phone, "CD4 count",
-		    obsDataBean.getCd4(), "%", obsDataBean.getCd4Percentage(), "KS", obsDataBean.getKs(), "ART Regimen", "",
-		    "Start date");
+		r += csv("Sex", obsDataBean.getSex(), "DOB", obsDataBean.getDateOfBirth(), "Patient phone", obsDataBean.getPhone(),
+		    "CD4 count", obsDataBean.getCd4(), "%", obsDataBean.getCd4Percentage(), "KS", obsDataBean.getKs(),
+		    "ART Regimen", "", "Start date");
 		r += Constants.NEWLINE;
 		r += csv("Phys. Address", obsDataBean.getAddr(), "", "", "", "", "CD4 date", obsDataBean.getCd4Date(), "", "",
 		    "Pregnant at initiation", obsDataBean.getPreg(), "1st Line", "d4T 3TC NVP", obsDataBean.getD4TDate());
@@ -211,4 +103,5 @@ public class HeaderData extends AbstractData {
 		
 		return r;
 	}
+	
 }
