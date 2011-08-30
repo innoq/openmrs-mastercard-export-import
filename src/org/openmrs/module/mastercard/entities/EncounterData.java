@@ -70,15 +70,17 @@ public class EncounterData extends AbstractData {
 		String outcomeDate = Constants.NOT_AVAILABLE;//("".equals(outcomeEnrollment) ? "" : date(s.getStartDate()));
 		
 		String comments = Constants.NOT_AVAILABLE;
-		String nextAppt = Constants.NOT_AVAILABLE;
 		String unknownObs = Constants.NOT_AVAILABLE;
 		
-		return csv(loc, date, obsDataBean.getHgt(), obsDataBean.getWgt(), outcomeEnrollment,
+		return csv(loc, date, obsDataBean.getHgt(),
+		    obsDataBean.getWgt(),
+		    outcomeEnrollment,
 		    //obsDataBean.getOutcome(),
 		    outcomeDate,
 		    //obsDataBean.getArvRegimen(), 
 		    obsDataBean.getSideEffectsYesNo(), obsDataBean.getTbStat(), obsDataBean.getPillCountAsString(),
 		    obsDataBean.getDosesMissed(), obsDataBean.getNoOfArvGivenAsString(), /* doses missed?*/
-		    obsDataBean.getNoOfArvGivenAsString(), obsDataBean.getCp4tGivenAsString(), comments, nextAppt, unknownObs); //unknownObs
+		    obsDataBean.getNoOfArvGivenAsString(), obsDataBean.getCp4tGivenAsString(), comments,
+		    obsDataBean.getNextAppointment(), unknownObs); //unknownObs
 	}
 }

@@ -305,6 +305,10 @@ public abstract class AbstractData {
 					obsDataBean.setArvDrugsReceived(o.getValueText());
 					break;
 				
+				case ObservationDataBean.nextAppointmentConceptID:
+					obsDataBean.setNextAppointment(date(o.getValueDatetime()));
+					break;
+				
 				case ObservationDataBean.noOfArvGivenConceptID:
 					obsDataBean.setNoOfArvGiven(o.getValueNumeric());
 					break;

@@ -18,6 +18,7 @@ import org.openmrs.api.EncounterService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.mastercard.entities.ArvMastercardBean;
 import org.openmrs.module.mastercard.entities.EncounterData;
 import org.openmrs.module.mastercard.entities.HeaderData;
 
@@ -101,77 +102,92 @@ public class ArtExporter {
 	 */
 	private void exportPatientsData(EncounterService es, Location nno, List<EncounterType> artInitials,
 	                                List<EncounterType> artFollowups, Patient p) throws FileNotFoundException, IOException {
-		String nnoArv = p.getPatientId() + "";
-		logger.info("  handling:" + nnoArv);
 		
-		nnoArv = checkForPIIdentifier(p, nnoArv);
+		ArvMastercardBean mastercard = collectMastercardData(es, nno, artInitials, artFollowups, p);
 		
-		BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("export/" + nnoArv + ".csv")));
-		Encounter initial = null;
-		w.newLine();
-		logger.info("  Patient " + p.getId());
-		// create new file
-		// BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new
-		// FileOutputStream("export/" + p.getId() + ".csv")));
-		List<Encounter> el = es.getEncounters(p, nno, null, null, null, artInitials, null, false);
+		writeMastercardToCsvFile(mastercard);
+	}
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param es
+     * @param nno
+     * @param artInitials
+     * @param artFollowups
+     * @param p
+     * @return
+     */
+    private ArvMastercardBean collectMastercardData(EncounterService es, Location nno, List<EncounterType> artInitials,
+                                                    List<EncounterType> artFollowups, Patient p) {
+	    ArvMastercardBean mastercard = null;
 		
-		HeaderData headerData;
-		if (el.size() == 0) {
-			// missing initial
-			logger.warn("  Missing initial, trying to use another encounter");
-			List<Encounter> anyEncounter = es.getEncounters(p, nno, null, null, null, null, null, false);
+		mastercard = new ArvMastercardBean();
+		
+		{//nnoArv to mastercard as identifier!
+			mastercard.setIdentifier(checkForPIIdentifier(p, p.getPatientId() + ""));
 			
-			if (anyEncounter.size() > 0) {
-				logger.info("    Going to write exportInitial to BufferedWriter");
-				headerData = new HeaderData(anyEncounter.get(0));
-				w.write(headerData.getCsvSerialized());
-				w.newLine();
+			logger.info("Filing mastercard for Patient with id: " + p.getId());
+			List<Encounter> el = es.getEncounters(p, nno, null, null, null, artInitials, null, false);
+			
+			HeaderData headerData = null;
+			if (el.size() == 0) {
+				// missing initial
+				logger.warn("  Missing initial, trying to use another encounter");
+				List<Encounter> anyEncounter = es.getEncounters(p, nno, null, null, null, null, null, false);
+				
+				if (anyEncounter.size() > 0) {
+					logger.info("    Going to write exportInitial to BufferedWriter");
+					headerData = new HeaderData(anyEncounter.get(0));
+				}
+			} else {
+				// take last initial (assuming list is ordered by date of entry)
+				logger.info("  Last initial encounter");
+				headerData = new HeaderData(el.get(el.size() - 1));
 			}
-		} else {
-			// take last initial (assuming list is ordered by date of entry)
-			logger.info("  Last initial encounter");
+			mastercard.setHeaderData(headerData);
 			
-			logger.info("    Going to write exportInitial to BufferedWriter");
+			logger.info("  Getting encounters for Patient " + p.getId());
+			el = es.getEncounters(p, nno, null, null, null, artFollowups, null, false);
 			
-			headerData = new HeaderData(el.get(el.size() - 1));
-			w.write(headerData.getCsvSerialized());
-			initial = el.get(el.size() - 1);
-			w.newLine();
-			
+			logger.info("  Initializing Arrayof encounters. # of encounters: " + el.size());
+			EncounterData[] encounterDataArray = new EncounterData[el.size()];
+			int i = 0;
+			for (Encounter e : el) {
+				encounterDataArray[i] = new EncounterData(e);
+				i++;
+			}
+			mastercard.setEncounterData(encounterDataArray);
 		}
-		logger.info("  Getting encounters for Patient " + p.getId());
-		el = es.getEncounters(p, nno, null, null, null, artFollowups, null, false);
-		// Visit Date Hgt Wt Adverse Outcome Outcome date 1st L Alt 1st Line
-		// 2nd L NS Side effects TB status current Pill count Doses missed
-		// ARVs given # To CPT # Comment Next appointment#
+	    return mastercard;
+    }
+	
+	/**
+	 * Auto generated method comment
+	 * 
+	 * @param mastercard
+	 * @param headerData
+	 * @param encounterDataArray
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private void writeMastercardToCsvFile(ArvMastercardBean mastercard) throws FileNotFoundException, IOException {
+		BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("export/"
+		        + mastercard.getIdentifier() + ".csv")));
 		
-		//TODO mild: Check header writing and neaderDataWriting.. maybe fucked up?
-		logger.info("  Writing Header headers ?");
-		w.write(EncounterData.getHeaderSerialized());
+		w.newLine();
+		//writing header data header to cvs
+		w.write(mastercard.getHeaderData().getCsvSerialized());
 		w.newLine();
 		
-		EncounterData encounterDataInitial;
-		if (initial != null) {
-			logger.info("   Initial != null, writing exportFollowup for initial " + initial.getId());
-			encounterDataInitial = new EncounterData(initial);
-			w.write(encounterDataInitial.getCsvSerialized());
-		}
-		w.newLine();
+		//writing encounter data to csv
+		EncounterData[] encounterDataArray = mastercard.getEncounterData();
 		
-		logger.info("  Iterating through encounters. # of encounters: " + el.size());
-		
-		logger.info("  Writing Encounters header ");
-		w.write(EncounterData.getHeaderSerialized());
-		w.newLine();
-		
-		for (Encounter e : el) {
-			
-			EncounterData encounterDate;
-			
-			encounterDate = new EncounterData(e);
-			w.write(encounterDate.getCsvSerialized());
+		logger.info("Iterating through " + encounterDataArray.length + " encounters");
+		for (int t = 0; t < encounterDataArray.length - 1; t++) {
+			logger.info("writing encounter " + t);
+			w.write(encounterDataArray[t].getCsvSerialized());
 			w.newLine();
-			
 		}
 		w.close();
 	}

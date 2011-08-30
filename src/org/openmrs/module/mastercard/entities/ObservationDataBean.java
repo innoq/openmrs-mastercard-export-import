@@ -78,7 +78,7 @@ public class ObservationDataBean {
 	//Check on this- getter/setter missing also
 	public final static int newRegimenConceptID = 2589;
 	
-	public final static int nextApptConceptID = 5096;
+	public final static int nextAppointmentConceptID = 5096;
 	
 	public final static int outcomeConceptID = 2530;
 	
@@ -298,6 +298,20 @@ public class ObservationDataBean {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	/**
+	 * @return the nextAppointment
+	 */
+	public String getNextAppointment() {
+		return nextAppointment;
+	}
+	
+	/**
+	 * @param nextAppointment the nextAppointment to set
+	 */
+	public void setNextAppointment(String nextAppointment) {
+		this.nextAppointment = nextAppointment;
 	}
 	
 	/**
@@ -934,6 +948,8 @@ public class ObservationDataBean {
 	
 	//Header: todo
 	private String name = Constants.NOT_AVAILABLE;
+	
+	private String nextAppointment = Constants.NOT_AVAILABLE;
 	
 	private Double noOfArvGiven = null;
 	
