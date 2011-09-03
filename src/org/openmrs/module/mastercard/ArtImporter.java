@@ -26,13 +26,13 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class ArtExporter {
+public class ArtImporter {
 	
-	static Logger logger = Logger.getLogger(ArtExporter.class);
+	static Logger logger = Logger.getLogger(ArtImporter.class);
 	
 	private Helper h = new Helper();
 	
-	public ArtExporter() {
+	public ArtImporter() {
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -54,7 +54,7 @@ public class ArtExporter {
 		Context.openSession();
 		Context.authenticate(openmrsUser, openmrsPw);
 		
-		new ArtExporter().run();
+		new ArtImporter().run();
 	}
 	
 	public void run() throws Exception {
@@ -66,23 +66,81 @@ public class ArtExporter {
 		EncounterService es = Context.getEncounterService();
 		PatientService ps = Context.getPatientService();
 		
-		logger.debug("Start exporting");
-		Location nno = null; // location("Neno District Hospital"); dont filter
-		// as mobile clinics also count
+		logger.debug("Start importing");
 		
-		// List<Patient> patients = Arrays.asList(ps.getPatient(16466));
+		File dir = new File("export");
 		
-		List<PatientIdentifierType> identifierTypes = Arrays.asList(ps.getPatientIdentifierTypeByName("ARV Number"));
-		List<EncounterType> artInitials = Arrays.asList(es.getEncounterType("ART_INITIAL"));
-		List<EncounterType> artFollowups = Arrays.asList(es.getEncounterType("ART_FOLLOWUP"));
+		FilenameFilter filter = new FilenameFilter() {
+			
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".csv");
+			}
+		};
 		
-		List<Patient> patients = getPatientArrayFromDB(ps, identifierTypes);
-		
-		(new File("export")).mkdir();
-		
-		for (Patient p : patients) {
-			exportPatientsData(es, nno, artInitials, artFollowups, p);
+		File[] children = dir.listFiles(filter);
+		if (children == null) {
+			// Either dir does not exist or is not a directory
+		} else {
+			for (int i = 0; i < children.length; i++) {
+				// Get filename of file or directory
+				File file = children[i];
+				logger.info("Found files in export: " + file);
+				getMastercardFromFile(file);
+			}
 		}
+		
+		//for (Patient p : patients) {
+		//	importPatientsData(es, nno, artInitials, artFollowups, p);
+		//}
+	}
+	
+	private MastercardActivator getMastercardFromFile(File file) throws IOException {
+		String[] headerStringArray = new String[8];
+		String[] encounterStringArray = null;
+		
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(file));
+			String str;
+			Set<String> encounterStringSet = new HashSet<String>();
+			int i = 0;
+			while ((str = in.readLine()) != null) {
+				logger.info(i + " " + str);
+				if (i == 1)
+					headerStringArray[0] = str;
+				if (i == 2)
+					headerStringArray[1] = str;
+				if (i == 4)
+					headerStringArray[2] = str;
+				if (i == 5)
+					headerStringArray[3] = str;
+				if (i == 6)
+					headerStringArray[4] = str;
+				if (i == 7)
+					headerStringArray[5] = str;
+				if (i == 8)
+					headerStringArray[6] = str;
+				if (i == 9)
+					headerStringArray[7] = str;
+				if (i > 10)
+					logger.info("add to array");
+				encounterStringSet.add(str);
+				i++;
+			}
+			in.close();
+			
+			i = 0;
+			encounterStringArray = new String[encounterStringSet.size()];
+			for (String es : encounterStringSet) {
+				encounterStringArray[i] = es;
+				logger.info("filed to array[" + i + "]" + encounterStringArray[i]);
+				i++;
+			}
+		}
+		catch (IOException e) {
+			logger.error(e.fillInStackTrace());
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -96,12 +154,12 @@ public class ArtExporter {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private void exportPatientsData(EncounterService es, Location nno, List<EncounterType> artInitials,
+	private void importPatientsData(EncounterService es, Location nno, List<EncounterType> artInitials,
 	                                List<EncounterType> artFollowups, Patient p) throws FileNotFoundException, IOException {
 		
 		ArvMastercardBean mastercard = collectMastercardData(es, nno, artInitials, artFollowups, p);
 		
-		writeMastercardToCsvFile(mastercard);
+		writeMastercardToDatabase(mastercard);
 	}
 	
 	/**
@@ -167,7 +225,7 @@ public class ArtExporter {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private void writeMastercardToCsvFile(ArvMastercardBean mastercard) throws FileNotFoundException, IOException {
+	private void writeMastercardToDatabase(ArvMastercardBean mastercard) throws FileNotFoundException, IOException {
 		BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("export/"
 		        + mastercard.getIdentifier() + ".csv")));
 		
