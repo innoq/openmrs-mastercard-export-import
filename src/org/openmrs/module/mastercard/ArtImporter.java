@@ -2,11 +2,9 @@ package org.openmrs.module.mastercard;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
-import org.openmrs.ConceptName;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
-import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
@@ -18,6 +16,7 @@ import org.openmrs.api.EncounterService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
+import org.openmrs.mastercard.exceptions.WrongFormatException;
 import org.openmrs.module.mastercard.entities.ArvMastercardBean;
 import org.openmrs.module.mastercard.entities.EncounterData;
 import org.openmrs.module.mastercard.entities.HeaderData;
@@ -59,10 +58,17 @@ public class ArtImporter {
 	
 	public void run() throws Exception {
 		
-		executeImport();
+		try {
+			executeImport();
+		}
+		catch (WrongFormatException e) {
+			logger.error("Error generated", e);
+			throw new Exception(e);
+		}
+		
 	}
 	
-	public void executeImport() throws Exception {
+	public void executeImport() throws Exception, WrongFormatException {
 		EncounterService es = Context.getEncounterService();
 		PatientService ps = Context.getPatientService();
 		
@@ -94,11 +100,12 @@ public class ArtImporter {
 		//}
 	}
 	
-	private MastercardActivator getMastercardFromFile(File file) throws IOException {
-		String[] headerStringArray = new String[8];
-		String[] encounterStringArray = null;
-		
+	private ArvMastercardBean getMastercardFromFile(File file) throws IOException, WrongFormatException {
+		ArvMastercardBean masterCardBean = null;
 		try {
+			String[] headerStringArray = new String[8];
+			String[] encounterStringArray = null;
+			
 			BufferedReader in = new BufferedReader(new FileReader(file));
 			String str;
 			Set<String> encounterStringSet = new HashSet<String>();
@@ -135,12 +142,49 @@ public class ArtImporter {
 				logger.info("filed to array[" + i + "]" + encounterStringArray[i]);
 				i++;
 			}
+			
+			HeaderData headerBean = parseArrayForHeaderData(headerStringArray);
+			EncounterData[] encounterBeanArray = parseArrayForEncounterData(encounterStringArray);
+			
+			masterCardBean = new ArvMastercardBean();
+			masterCardBean.setHeaderData(headerBean);
+			masterCardBean.setEncounterData(encounterBeanArray);
 		}
 		catch (IOException e) {
 			logger.error(e.fillInStackTrace());
 		}
 		
-		return null;
+		return masterCardBean;
+	}
+	
+	/**
+	 * Auto generated method comment
+	 * 
+	 * @param encounterStringArray
+	 * @return
+	 * @throws WrongFormatException
+	 */
+	private EncounterData[] parseArrayForEncounterData(String[] encounterStringArray) throws WrongFormatException {
+		
+		EncounterData[] encounterDataArray = new EncounterData[encounterStringArray.length];
+		
+		for (int i = 0; i < encounterStringArray.length; i++) {
+			EncounterData encounterData = (EncounterData) new EncounterData(encounterStringArray);
+			encounterDataArray[i] = encounterData;
+		}
+		return encounterDataArray;
+	}
+	
+	/**
+	 * Auto generated method comment
+	 * 
+	 * @param headerStringArray
+	 * @return
+	 * @throws WrongFormatException
+	 */
+	protected HeaderData parseArrayForHeaderData(String[] headerStringArray) throws WrongFormatException {
+		HeaderData headerData = (HeaderData) new HeaderData(headerStringArray);
+		return headerData;
 	}
 	
 	/**

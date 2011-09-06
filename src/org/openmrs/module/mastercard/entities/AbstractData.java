@@ -32,6 +32,7 @@ import org.openmrs.PatientState;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
+import org.openmrs.mastercard.exceptions.WrongFormatException;
 import org.openmrs.module.mastercard.Helper;
 
 /**
@@ -39,13 +40,26 @@ import org.openmrs.module.mastercard.Helper;
  */
 public abstract class AbstractData {
 	
-	String stringRepresentation = null;
+	ObservationDataBean obsDataBean = null;
 	
-	static Logger logger = Logger.getLogger(AbstractData.class);
+	Encounter encounter = null;
 	
 	public AbstractData(Encounter e) {
 		super();
-		
+		init();
+		encounter = e;
+		marshalEncounterData();
+	}
+	
+	public AbstractData(String[] stringArray) throws WrongFormatException {
+		super();
+		init();
+		demarshalData(stringArray);
+	}
+	
+	static Logger logger = Logger.getLogger(AbstractData.class);
+	
+	private void init() {
 		//TODO mild: put mapper data to a singleton or factory etc.
 		String[] mappings = { "Neno District Hospital", "NNO", "Nsambe HC", "NSM", "Magaleta HC", "MGT",
 		
@@ -62,15 +76,17 @@ public abstract class AbstractData {
 			mapper.put(mappings[i], mappings[i + 1]);
 		}
 		//END TODO mild
-		
-		stringRepresentation = extractEncounterData(e);
 	}
 	
-	public String getCsvSerialized() {
-		return stringRepresentation;
+	public ObservationDataBean getObservations() {
+		return obsDataBean;
 	}
 	
-	protected abstract String extractEncounterData(Encounter e);
+	protected abstract void demarshalData(String[] stringArray) throws WrongFormatException;
+	
+	public abstract String getCsvSerialized();
+	
+	protected abstract void marshalEncounterData();
 	
 	private Helper h = new Helper();
 	
@@ -184,7 +200,8 @@ public abstract class AbstractData {
 	 * @param encounter
 	 * @param obsDataBean
 	 */
-	protected void extractObservations(Encounter encounter, ObservationDataBean obsDataBean) {
+	protected void extractObservations() {
+		obsDataBean = new ObservationDataBean();
 		
 		// ART no Pre-ART no Pre-ART start date OpenMRS ID VHW
 		obsDataBean.setArtNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
@@ -358,5 +375,23 @@ public abstract class AbstractData {
 					
 			}
 		}
+	}
+	
+	/**
+	 * Splits a semicolon separated Line into single elements
+	 * 
+	 * @param string
+	 * @return
+	 */
+	protected String[] parseLine(String string) {
+		String[] lineElementArray = string.split(";");
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Breaking line " + string + " into:");
+			for (String lineElement : lineElementArray) {
+				logger.debug("borken into: " + lineElement);
+			}
+		}
+		return lineElementArray;
 	}
 }

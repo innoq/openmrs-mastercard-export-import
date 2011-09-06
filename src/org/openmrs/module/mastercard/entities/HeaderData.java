@@ -34,6 +34,7 @@ import org.openmrs.PersonAddress;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
+import org.openmrs.mastercard.exceptions.WrongFormatException;
 import org.openmrs.module.mastercard.ArtExporter;
 import org.openmrs.module.mastercard.Helper;
 
@@ -48,26 +49,198 @@ public class HeaderData extends AbstractData {
 		super(e);
 	}
 	
-	protected String extractEncounterData(Encounter encounter) {
+	public HeaderData(String[] str) throws WrongFormatException {
+		super(str);
+	}
+	
+	protected void marshalEncounterData() {
 		logger.info("exportInitial(Encounter " + encounter.getId() + ")");
-		String r = "";
+		
+		extractObservations();
 		
 		PatientState ps = currentProgramWorkflowStatus(1, encounter.getPatient(), new Date());
 		//		ps = h.getMostRecentStateAtLocation(encounter.getPatient(), h.program("HIV PROGRAM"), h.location("Neno District Hospital"), sessionFactory().getCurrentSession());
 		
 		if (ps != null) {
-			r += csv("Outcome NNO", ps.getState().getConcept().getName().getName(), "at location" /*, map(h.getEnrollmentLocation(ps.getPatientProgram(),
-			                                                                                      sessionFactory().getCurrentSession()).getName())*/);
+			obsDataBean.setOutcome(ps.getState().getConcept().getName().getName());
 		} else {
-			r += csv("Outcome NNO", "Unknown");
+			obsDataBean.setOutcome("Unknown");
 		}
+		//TODO Mild: Handle Adresses in a better way!
+		//String addr = "";
+		//Set<PersonAddress> addresses = encounter.getPatient().getAddresses();
+		//for (PersonAddress a : addresses) {
+		//	addr += h(a.getCityVillage()) + " " + h(a.getCountyDistrict()) + ", ";
+		//}
+	}
+	
+	/**
+	 * @throws WrongFormatException
+	 * @see org.openmrs.module.mastercard.entities.AbstractData#demarshalData(java.lang.String[])
+	 */
+	@Override
+	protected void demarshalData(String[] stringArray) throws WrongFormatException {
+		obsDataBean = new ObservationDataBean();
+		
+		if (!stringArray[0].isEmpty())
+			throw new WrongFormatException("Header Line 0 expected to be empty /'/'");
+		
+		handleLine2(obsDataBean, parseLine(stringArray[1]));
+		handleLine3(obsDataBean, parseLine(stringArray[2]));
+		if (!stringArray[3].isEmpty())
+			throw new WrongFormatException("Header Line 0 expected to be empty /'/'");
+		handleLine5(obsDataBean, parseLine(stringArray[4]));
+		handleLine6(obsDataBean, parseLine(stringArray[5]));
+		handleLine7(obsDataBean, parseLine(stringArray[6]));
+		handleLine8(obsDataBean, parseLine(stringArray[7]));
+		handleLine9(obsDataBean, parseLine(stringArray[8]));
+		handleLine10(obsDataBean, parseLine(stringArray[9]));
+		
+	}
+	
+	/**
+	 * Parsing Line 10, similar to
+	 * "Agrees to FUP;YES;Guardian Relation;-;Guardian Phone;-;Age at init.;-;;;Last ARVs (drug, date);-;2nd Line;-;-;;Unknown Obs;-"
+	 * ;
+	 * 
+	 * @param obsDataBean
+	 * @param parseLine
+	 */
+	private void handleLine10(ObservationDataBean obsDataBean, String[] parseLine) {
+		obsDataBean.setFup(parseLine[1]);
+		obsDataBean.setGrel(parseLine[3]);
+		obsDataBean.setGphone(parseLine[5]);
+		obsDataBean.setAgeInit(parseLine[7]);
+		obsDataBean.setLastArv(parseLine[11]);
+		obsDataBean.setSecondL(parseLine[13]);
+		obsDataBean.setSecondLDate(parseLine[14]);
+		//Ignoring Unkown Obs
+	}
+	
+	/**
+	 * Parsing Line 9, similar to
+	 * "Guardian Name;Njolomole / Watson;;;;;Height;-;Weight;17.8;Ever taken ARVs;-;Alt 1st Line;-;-"
+	 * ;
+	 * 
+	 * @param obsDataBean
+	 * @param parseLine
+	 */
+	private void handleLine9(ObservationDataBean obsDataBean, String[] parseLine) {
+		
+		String[] nameElementArrays = parseLine[1].split("/");
+		obsDataBean.setGuardianLastName(nameElementArrays[1]);
+		obsDataBean.setGuardianFirstName(nameElementArrays[2]);
+		
+		obsDataBean.setHgt(parseLine[7]);
+		obsDataBean.setWgt(parseLine[9]);
+		obsDataBean.setEverArv(parseLine[11]);
+		obsDataBean.setAlt1stL(parseLine[13]);
+		obsDataBean.setAlt1stLDate(parseLine[14]);
+	}
+	
+	/**
+	 * Parsing Line 8, similar to
+	 * "Phys. Address;-;;;;;CD4 date;-;;;Pregnant at initiation;-;1st Line;d4T 3TC NVP;-";
+	 * 
+	 * @param obsDataBean
+	 * @param parseLine
+	 */
+	private void handleLine8(ObservationDataBean obsDataBean, String[] parseLine) {
+		//TODO mild: Add proper adress handling
+		obsDataBean.setAddr("to be done");
+		obsDataBean.setCd4Date(parseLine[7]);
+		obsDataBean.setPreg(parseLine[11]);
+		obsDataBean.setAlt1stLDate(parseLine[14]);
+	}
+	
+	/**
+	 * Parsing Line 7, similar to
+	 * "Sex;M;DOB;09 Jun 1999;Patient phone;-;CD4 count;-;%;-;KS;-;ART Regimen;;Start date";
+	 * 
+	 * @param obsDataBean
+	 * @param parseLine
+	 */
+	private void handleLine7(ObservationDataBean obsDataBean, String[] parseLine) {
+		obsDataBean.setSex(parseLine[1]);
+		obsDataBean.setDateOfBirth(parseLine[3]);
+		obsDataBean.setPhone(parseLine[5]);
+		obsDataBean.setCd4(parseLine[7]);
+		obsDataBean.setCd4Percentage(parseLine[9]);
+		obsDataBean.setKs(parseLine[11]);
+		obsDataBean.setArvRegimen(parseLine[13]);
+		obsDataBean.setArvDrugsReceived(parseLine[15]);
+	}
+	
+	/**
+	 * Parsing Line 6, similar to
+	 * "Patient name;Dambudzo / Njolomole;;;;;Clin Stage;3;;;TB Status at initiation;-;Date, Place;01 Jul 2005 / QECH;Type;-"
+	 * ;
+	 * 
+	 * @param obsDataBean
+	 * @param parseLine
+	 */
+	private void handleLine6(ObservationDataBean obsDataBean, String[] parseLine) {
+		obsDataBean.setName(parseLine[1]);
+		//TODO mild proper handling of family and given name, also at writing
+		// like with guardioan name:
+		//String[] nameElementArrays = parseLine[1].split("/");
+		//obsDataBean.setName(nameElementArrays[1]);
+		//obsDataBean.setGuardianFirstName(nameElementArrays[2]);
+		obsDataBean.setStage(parseLine[7]);
+		obsDataBean.setTbStat(parseLine[11]);
+		String[] hivDiagnosisElementArrays = parseLine[13].split("/");
+		obsDataBean.setDateOfHiVDiagnosis(hivDiagnosisElementArrays[0]);
+		obsDataBean.setLocationWhereTestTookPlace(hivDiagnosisElementArrays[1]);
+		
+	}
+	
+	/**
+	 * Parsing Line 5, similar to
+	 * "Patient Guardian details;;;;;;Status at ART initiation;;;;;;First positive HIV test;";
+	 * 
+	 * @param obsDataBean
+	 * @param parseLine
+	 */
+	private void handleLine5(ObservationDataBean obsDataBean, String[] parseLine) {
+		
+		//Line 5 keeps only header text, no processing needed
+		
+	}
+	
+	/**
+	 * Parsing Line 3, similar to "ART no;NNO 1;OpenMRS ID;15889";
+	 * 
+	 * @param obsDataBean
+	 * @param parseLine
+	 */
+	private void handleLine3(ObservationDataBean obsDataBean, String[] parseLine) {
+		obsDataBean.setArtNos(parseLine[1]);
+		//TODO cneumann what to do with OpenMRS-ID?
+		
+	}
+	
+	/**
+	 * Parsing Line 2, similar to "Outcome NNO;ON ANTIRETROVIRALS;at location;";
+	 * 
+	 * @param obsDataBean
+	 * @param parseLine
+	 */
+	private void handleLine2(ObservationDataBean obsDataBean, String[] parseLine) {
+		obsDataBean.setOutcome(parseLine[1]);
+		
+		//TODO mild: output of location is missing in export
+		obsDataBean.setLocationWhereTestTookPlace(parseLine[3]);
+	}
+	
+	/**
+	 * @see org.openmrs.module.mastercard.entities.AbstractData#getCsvSerialized(org.openmrs.Encounter)
+	 */
+	@Override
+	public String getCsvSerialized() {
+		String r = "";
+		
+		r += csv("Outcome NNO", obsDataBean.getOutcome(), "at location", obsDataBean.getLocationWhereTestTookPlace());
 		r += Constants.NEWLINE;
-		
-		ObservationDataBean obsDataBean = new ObservationDataBean();
-		
-		extractObservations(encounter, obsDataBean);
-		
-
 		
 		String addr = "";
 		Set<PersonAddress> addresses = encounter.getPatient().getAddresses();
@@ -86,7 +259,7 @@ public class HeaderData extends AbstractData {
 		r += Constants.NEWLINE;
 		r += csv("Sex", obsDataBean.getSex(), "DOB", obsDataBean.getDateOfBirth(), "Patient phone", obsDataBean.getPhone(),
 		    "CD4 count", obsDataBean.getCd4(), "%", obsDataBean.getCd4Percentage(), "KS", obsDataBean.getKs(),
-		    "ART Regimen", "", "Start date");
+		    "ART Regimen", "", "Start date", obsDataBean.getArvDrugsReceived()); //TODO cneumann: check on getArvDrugsReceived
 		r += Constants.NEWLINE;
 		r += csv("Phys. Address", obsDataBean.getAddr(), "", "", "", "", "CD4 date", obsDataBean.getCd4Date(), "", "",
 		    "Pregnant at initiation", obsDataBean.getPreg(), "1st Line", "d4T 3TC NVP", obsDataBean.getD4TDate());

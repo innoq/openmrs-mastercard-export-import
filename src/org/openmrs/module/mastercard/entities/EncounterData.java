@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.PatientState;
+import org.openmrs.mastercard.exceptions.WrongFormatException;
 
 /**
  *
@@ -32,6 +33,10 @@ public class EncounterData extends AbstractData {
 		super(e);
 	}
 	
+	public EncounterData(String[] str) throws WrongFormatException {
+		 super(str);
+	}
+	
 	static Logger logger = Logger.getLogger(EncounterData.class);
 	
 	public static String getHeaderSerialized() {
@@ -40,14 +45,12 @@ public class EncounterData extends AbstractData {
 		    "Comment", "Next appointment", "Unknown Obs");
 	}
 	
-	protected String extractEncounterData(Encounter encounter) {
+	protected void marshalEncounterData() {
 		logger.info("exportFollowup(Encounter " + encounter.getId() + ")");
 		
 		ObservationDataBean obsDataBean = new ObservationDataBean();
 		
-		extractObservations(encounter, obsDataBean);
-		
-		return renderEncounterToCsv(encounter, obsDataBean);
+		extractObservations();
 	}
 	
 	/**
@@ -57,7 +60,7 @@ public class EncounterData extends AbstractData {
 	 * @param obsDataBean
 	 * @return
 	 */
-	private String renderEncounterToCsv(Encounter encounter, ObservationDataBean obsDataBean) {
+	private String renderEncounterToCsv(Encounter encounter) {
 		
 		String loc = map(encounter.getLocation().getName());
 		String date = date(encounter.getEncounterDatetime());
@@ -82,5 +85,22 @@ public class EncounterData extends AbstractData {
 		    obsDataBean.getDosesMissed(), obsDataBean.getNoOfArvGivenAsString(), /* doses missed?*/
 		    obsDataBean.getNoOfArvGivenAsString(), obsDataBean.getCp4tGivenAsString(), comments,
 		    obsDataBean.getNextAppointment(), unknownObs); //unknownObs
+	}
+	
+	/**
+	 * @see org.openmrs.module.mastercard.entities.AbstractData#demarshalData(java.lang.String[])
+	 */
+	@Override
+	protected void demarshalData(String[] stringArray) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * @see org.openmrs.module.mastercard.entities.AbstractData#getCsvSerialized()
+	 */
+	@Override
+	public String getCsvSerialized() {
+		return renderEncounterToCsv(encounter);
 	}
 }
