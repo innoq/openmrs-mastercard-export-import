@@ -974,38 +974,34 @@ public class ObservationDataBean {
 		this.outcome = outcome;
 	}
 	
+	/**
+	 * @return the patientGivenName
+	 */
+	public String getPatientGivenName() {
+		return patientGivenName;
+	}
 	
-    /**
-     * @return the patientGivenName
-     */
-    public String getPatientGivenName() {
-    	return patientGivenName;
-    }
-
+	/**
+	 * @param patientGivenName the patientGivenName to set
+	 */
+	public void setPatientGivenName(String patientGivenName) {
+		this.patientGivenName = patientGivenName;
+	}
 	
-    /**
-     * @param patientGivenName the patientGivenName to set
-     */
-    public void setPatientGivenName(String patientGivenName) {
-    	this.patientGivenName = patientGivenName;
-    }
-
+	/**
+	 * @return the patientFamilyName
+	 */
+	public String getPatientFamilyName() {
+		return patientFamilyName;
+	}
 	
-    /**
-     * @return the patientFamilyName
-     */
-    public String getPatientFamilyName() {
-    	return patientFamilyName;
-    }
-
+	/**
+	 * @param patientFamilyName the patientFamilyName to set
+	 */
+	public void setPatientFamilyName(String patientFamilyName) {
+		this.patientFamilyName = patientFamilyName;
+	}
 	
-    /**
-     * @param patientFamilyName the patientFamilyName to set
-     */
-    public void setPatientFamilyName(String patientFamilyName) {
-    	this.patientFamilyName = patientFamilyName;
-    }
-
 	private String patientGivenName = Constants.NOT_AVAILABLE;
 	
 	private String patientFamilyName = Constants.NOT_AVAILABLE;
@@ -1040,7 +1036,10 @@ public class ObservationDataBean {
 	}
 	
 	public void setPillCount(String pillCount) {
-		this.pillCount = Double.valueOf(pillCount);
+		if (!pillCount.equals(Constants.NOT_AVAILABLE))
+			this.pillCount = Double.valueOf(pillCount);
+		else
+			this.pillCount = null;
 	}
 	
 	/**

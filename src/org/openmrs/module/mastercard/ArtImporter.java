@@ -165,7 +165,7 @@ public class ArtImporter {
 	 * @return
 	 * @throws WrongFormatException
 	 */
-	private EncounterData[] parseArrayForEncounterData(String[] encounterStringArray) throws WrongFormatException {
+	protected EncounterData[] parseArrayForEncounterData(String[] encounterStringArray) throws WrongFormatException {
 		
 		EncounterData[] encounterDataArray = new EncounterData[encounterStringArray.length];
 		

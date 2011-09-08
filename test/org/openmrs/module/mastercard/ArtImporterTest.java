@@ -19,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.mastercard.exceptions.WrongFormatException;
+import org.openmrs.module.mastercard.entities.EncounterData;
 import org.openmrs.module.mastercard.entities.HeaderData;
 import org.openmrs.module.mastercard.entities.ObservationDataBean;
 
@@ -29,9 +30,11 @@ public class ArtImporterTest {
 	
 	String[] stringArray1 = null;
 	
+	String[] stringArray2 = null;
+	
 	@Before
 	public void setUp() throws Exception {
-		stringArray1 = new String[19];
+		stringArray1 = new String[10];
 		stringArray1[0] = "";
 		stringArray1[1] = "Outcome NNO;ON ANTIRETROVIRALS;at location;todo";
 		stringArray1[2] = "ART no;NNO 1;OpenMRS ID;15889";
@@ -42,16 +45,18 @@ public class ArtImporterTest {
 		stringArray1[7] = "Phys. Address;-;;;;;CD4 date;-;;;Pregnant at initiation;-;1st Line;d4T 3TC NVP;-";
 		stringArray1[8] = "Guardian Name;Njolomole / Watson;;;;;Height;-;Weight;17.8;Ever taken ARVs;-;Alt 1st Line;-;-";
 		stringArray1[9] = "Agrees to FUP;YES;Guardian Relation;-;Guardian Phone;-;Age at init.;-;;;Last ARVs (drug, date);-;2nd Line;-;-;;Unknown Obs;-";
-		stringArray1[10] = "";
-		stringArray1[11] = "Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;";
-		stringArray1[11] = "NNO;29 Jun 2006;-;17.8;-;outcome;-;arvReg;-;-;-;-;60.0;60.0;-;-;-;-;";
-		stringArray1[12] = "NNO;03 Aug 2006;-;18.3;-;outcome;-;arvReg;-;-;-;-;60.0;60.0;-;-;-;-;";
-		stringArray1[13] = "NNO;15 Feb 2007;110.0;19.1;-;outcome;-;arvReg;-;-;8.0;-;39.0;39.0;-;-;-;-;";
-		stringArray1[14] = "NNO;27 Nov 2007;118.0;20.9;-;outcome;-;arvReg;-;-;4.0;-;39.0;39.0;-;-;-;-;";
-		stringArray1[15] = "NNO;22 May 2008;122.0;22.9;-;outcome;-;arvReg;-;-;-;-;120.0;120.0;-;-;19 Jun 2008;-;";
-		stringArray1[16] = "NNO;28 Apr 2009;-;25.2;-;outcome;-;arvReg;No;-;-;-;165.0;165.0;-;-;21 Jul 2009;-;";
-		stringArray1[17] = "NNO;20 Jan 2011;132.0;28.4;-;outcome;-;arvReg;-;-;8.0;-;165.0;165.0;-;-;14 Apr 2011;-;";
-		stringArray1[18] = "NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;";
+		
+		stringArray2 = new String[10];
+		stringArray2[0] = "Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;";
+		stringArray2[1] = "";
+		stringArray2[2] = "NNO;29 Jun 2006;-;17.8;-;outcome;-;arvReg;-;-;-;-;60.0;60.0;-;-;-;-;";
+		stringArray2[3] = "NNO;03 Aug 2006;-;18.3;-;outcome;-;arvReg;-;-;-;-;60.0;60.0;-;-;-;-;";
+		stringArray2[4] = "NNO;15 Feb 2007;110.0;19.1;-;outcome;-;arvReg;-;-;8.0;-;39.0;39.0;-;-;-;-;";
+		stringArray2[5] = "NNO;27 Nov 2007;118.0;20.9;-;outcome;-;arvReg;-;-;4.0;-;39.0;39.0;-;-;-;-;";
+		stringArray2[6] = "NNO;22 May 2008;122.0;22.9;-;outcome;-;arvReg;-;-;-;-;120.0;120.0;-;-;19 Jun 2008;-;";
+		stringArray2[7] = "NNO;28 Apr 2009;-;25.2;-;outcome;-;arvReg;No;-;-;-;165.0;165.0;-;-;21 Jul 2009;-;";
+		stringArray2[8] = "NNO;20 Jan 2011;132.0;28.4;-;outcome;-;arvReg;-;-;8.0;-;165.0;165.0;-;-;14 Apr 2011;-;";
+		stringArray2[9] = "NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;";
 	}
 	
 	/**
@@ -71,7 +76,7 @@ public class ArtImporterTest {
 	 * @throws WrongFormatException
 	 */
 	@Test
-	public void testParseArrayForHeaderData() throws WrongFormatException {
+	public void testParseArrayForHeaderData1() throws WrongFormatException {
 		ArtImporter artImp = new ArtImporter();
 		HeaderData headerData = artImp.parseArrayForHeaderData(stringArray1);
 		
@@ -84,5 +89,27 @@ public class ArtImporterTest {
 		
 		assertEquals("01 Jul 2005", obs.getDateOfHiVDiagnosis());
 		assertEquals("QECH", obs.getLocationWhereTestTookPlace());
+	}
+	
+	/**
+	 * Test method for
+	 * {@link org.openmrs.module.mastercard.ArtImporter#parseArrayForHeaderData(java.lang.String[])}
+	 * .
+	 * 
+	 * @throws WrongFormatException
+	 */
+	@Test
+	public void testParseArrayForEncounterData() throws WrongFormatException {
+		ArtImporter artImp = new ArtImporter();
+		EncounterData[] encounterDataArray = artImp.parseArrayForEncounterData(stringArray2);
+		
+		EncounterData encounterData = encounterDataArray[0];
+		//"Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;";
+		//"NNO;29 Jun 2006;-;17.8;-;outcome;-;arvReg;-;-;-;-;60.0;60.0;-;-;-;-;";
+		ObservationDataBean obs = encounterData.getObservations();
+		assertEquals("29 Jun 2006", encounterData.getDateOfEncounter());
+		assertEquals("17.8", obs.getHgt());
+		assertEquals("-", obs.getWgt());
+		assertEquals("outcome", obs.getOutcome());
 	}
 }

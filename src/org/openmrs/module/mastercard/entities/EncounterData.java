@@ -26,6 +26,20 @@ import org.openmrs.mastercard.exceptions.WrongFormatException;
  */
 public class EncounterData extends AbstractData {
 	
+	/**
+	 * @return the locationOfEncounter
+	 */
+	public String getLocationOfEncounter() {
+		return locationOfEncounter;
+	}
+	
+	/**
+	 * @return the dateOfEncounter
+	 */
+	public String getDateOfEncounter() {
+		return dateOfEncounter;
+	}
+	
 	private String locationOfEncounter;
 	
 	private String dateOfEncounter;
@@ -98,16 +112,20 @@ public class EncounterData extends AbstractData {
 	protected void demarshalData(String[] stringArray) throws WrongFormatException {
 		obsDataBean = new ObservationDataBean();
 		
-		if (!stringArray[0].isEmpty())
-			throw new WrongFormatException("Header Line 0 expected to be empty /'/'");
+		if (!stringArray[0]
+		        .equals("Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;"))
+			throw new WrongFormatException("Header Line 0 expected to be Encounter Data Header /'/'");
 		
-		handleLine(obsDataBean, parseLine(stringArray[1]));
+		if (!stringArray[1].isEmpty())
+			throw new WrongFormatException("Header Line 1 expected to be empty /'/'");
+		
+		handleLine(obsDataBean, parseLine(stringArray[2]));
 	}
 	
 	/**
-	 * Parsing Encounter Line like:
-	 * NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;
-	 *
+	 * Parsing Encounter Line like: NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT
+	 * SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;
+	 * 
 	 * @param obsDataBean
 	 * @param parseLine
 	 */
