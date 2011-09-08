@@ -161,6 +161,9 @@ public abstract class AbstractData {
 	protected static String csv(String... strings) {
 		String result = "";
 		for (String s : strings) {
+			if (s == null) {
+				s = Constants.NOT_AVAILABLE;
+			}
 			result += s.replaceAll("\\r|\\n|\\t|;", " ").replaceAll("   ", " ").replaceAll("  ", " ").trim() + ";";
 		}
 		return result;
@@ -212,7 +215,9 @@ public abstract class AbstractData {
 		//obsDataBean.setPartStart();
 		obsDataBean.setPatientId(encounter.getPatientId());
 		
-		obsDataBean.setName(h(encounter.getPatient().getGivenName()) + " / " + h(encounter.getPatient().getFamilyName()));
+		obsDataBean.setPatientGivenName(h(encounter.getPatient().getGivenName()));
+		
+		obsDataBean.setPatientFamilyName(h(encounter.getPatient().getFamilyName()));
 		
 		obsDataBean.setSex(encounter.getPatient().getGender());
 		obsDataBean.setDateOfBirth(date(encounter.getPatient().getBirthdate()));
@@ -239,6 +244,11 @@ public abstract class AbstractData {
 				case ObservationDataBean.arvRegimenTypConceptID:
 					obsDataBean.setArvRegimen(o.getValueText());
 					logger.warn("arvRegimenTypConceptID " + o.getValueText());
+					break;
+				
+				case ObservationDataBean.commentsAtConclusionOfExaminationConceptID:
+					obsDataBean.setComment(o.getValueText());
+					logger.warn("commentConceptID " + o.getValueText());
 					break;
 				
 				case ObservationDataBean.dateAntiretroviralsStartedConceptID:
@@ -348,7 +358,7 @@ public abstract class AbstractData {
 				
 				case ObservationDataBean.igno01DateOfLastMenstrualBlood2ConceptID:
 				case ObservationDataBean.igno02ReasonAntiretroviralsStarted2ConceptID:
-				case ObservationDataBean.igno03Name2ConceptID:
+					//case ObservationDataBean.igno03Name2ConceptID:
 				case ObservationDataBean.igno04CommentsAtConclustionOfExamination2ConceptID:
 				case ObservationDataBean.igno05IsOnCpt2ConceptID:
 				case ObservationDataBean.igno06GuardianPresent2ConceptID:

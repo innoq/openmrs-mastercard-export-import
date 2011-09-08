@@ -26,6 +26,10 @@ import org.openmrs.mastercard.exceptions.WrongFormatException;
  */
 public class EncounterData extends AbstractData {
 	
+	private String locationOfEncounter;
+	
+	private String dateOfEncounter;
+	
 	/**
 	 * @param e
 	 */
@@ -33,8 +37,8 @@ public class EncounterData extends AbstractData {
 		super(e);
 	}
 	
-	public EncounterData(String[] str) throws WrongFormatException {
-		 super(str);
+	public EncounterData(String[] strArr) throws WrongFormatException {
+		super(strArr);
 	}
 	
 	static Logger logger = Logger.getLogger(EncounterData.class);
@@ -72,27 +76,58 @@ public class EncounterData extends AbstractData {
 		
 		String outcomeDate = Constants.NOT_AVAILABLE;//("".equals(outcomeEnrollment) ? "" : date(s.getStartDate()));
 		
-		String comments = Constants.NOT_AVAILABLE;
 		String unknownObs = Constants.NOT_AVAILABLE;
 		
-		return csv(loc, date, obsDataBean.getHgt(),
-		    obsDataBean.getWgt(),
-		    outcomeEnrollment,
+		return csv(loc, date, obsDataBean.getHgt(), obsDataBean.getWgt(), outcomeEnrollment,
+		    "outcome",
 		    //obsDataBean.getOutcome(),
 		    outcomeDate,
+		    "arvReg",
 		    //obsDataBean.getArvRegimen(), 
 		    obsDataBean.getSideEffectsYesNo(), obsDataBean.getTbStat(), obsDataBean.getPillCountAsString(),
 		    obsDataBean.getDosesMissed(), obsDataBean.getNoOfArvGivenAsString(), /* doses missed?*/
-		    obsDataBean.getNoOfArvGivenAsString(), obsDataBean.getCp4tGivenAsString(), comments,
+		    obsDataBean.getNoOfArvGivenAsString(), obsDataBean.getCp4tGivenAsString(), obsDataBean.getComment(),
 		    obsDataBean.getNextAppointment(), unknownObs); //unknownObs
 	}
 	
 	/**
+	 * @throws WrongFormatException
 	 * @see org.openmrs.module.mastercard.entities.AbstractData#demarshalData(java.lang.String[])
 	 */
 	@Override
-	protected void demarshalData(String[] stringArray) {
-		// TODO Auto-generated method stub
+	protected void demarshalData(String[] stringArray) throws WrongFormatException {
+		obsDataBean = new ObservationDataBean();
+		
+		if (!stringArray[0].isEmpty())
+			throw new WrongFormatException("Header Line 0 expected to be empty /'/'");
+		
+		handleLine(obsDataBean, parseLine(stringArray[1]));
+	}
+	
+	/**
+	 * Parsing Encounter Line like:
+	 * NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;
+	 *
+	 * @param obsDataBean
+	 * @param parseLine
+	 */
+	private void handleLine(ObservationDataBean obsDataBean, String[] parseLine) {
+		locationOfEncounter = parseLine[0];
+		dateOfEncounter = parseLine[1];
+		obsDataBean.setHgt(parseLine[3]);
+		obsDataBean.setWgt(parseLine[4]);
+		obsDataBean.setOutcome(parseLine[5]);
+		
+		//TODO cneumann check wether this matches outcome date?
+		obsDataBean.setDateOfHiVDiagnosis(parseLine[6]);
+		obsDataBean.setArvRegimen(parseLine[7]);
+		obsDataBean.setSideEffectsYesNo(parseLine[8]);
+		obsDataBean.setTbStat(parseLine[9]);
+		obsDataBean.setPillCount(parseLine[10]);
+		obsDataBean.setDosesMissed(parseLine[11]);
+		obsDataBean.setArvDrugsReceived(parseLine[12]);
+		obsDataBean.setCp4tGiven(parseLine[13]);
+		obsDataBean.setComment(parseLine[14]);
 		
 	}
 	

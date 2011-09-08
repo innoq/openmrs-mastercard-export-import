@@ -109,6 +109,7 @@ public class ArtImporter {
 			BufferedReader in = new BufferedReader(new FileReader(file));
 			String str;
 			Set<String> encounterStringSet = new HashSet<String>();
+			
 			int i = 0;
 			while ((str = in.readLine()) != null) {
 				logger.info(i + " " + str);
@@ -128,7 +129,7 @@ public class ArtImporter {
 					headerStringArray[6] = str;
 				if (i == 9)
 					headerStringArray[7] = str;
-				if (i > 10)
+				if (i > 12)
 					logger.info("add to array");
 				encounterStringSet.add(str);
 				i++;
@@ -136,7 +137,7 @@ public class ArtImporter {
 			in.close();
 			
 			i = 0;
-			encounterStringArray = new String[encounterStringSet.size()];
+			encounterStringArray = new String[encounterStringSet.size() - 12];
 			for (String es : encounterStringSet) {
 				encounterStringArray[i] = es;
 				logger.info("filed to array[" + i + "]" + encounterStringArray[i]);

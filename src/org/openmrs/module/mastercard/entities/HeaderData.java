@@ -95,7 +95,6 @@ public class HeaderData extends AbstractData {
 		handleLine8(obsDataBean, parseLine(stringArray[7]));
 		handleLine9(obsDataBean, parseLine(stringArray[8]));
 		handleLine10(obsDataBean, parseLine(stringArray[9]));
-		
 	}
 	
 	/**
@@ -127,10 +126,7 @@ public class HeaderData extends AbstractData {
 	 */
 	private void handleLine9(ObservationDataBean obsDataBean, String[] parseLine) {
 		
-		String[] nameElementArrays = parseLine[1].split("/");
-		obsDataBean.setGuardianLastName(nameElementArrays[1]);
-		obsDataBean.setGuardianFirstName(nameElementArrays[2]);
-		
+		obsDataBean.setGuardianName(parseLine[1]);
 		obsDataBean.setHgt(parseLine[7]);
 		obsDataBean.setWgt(parseLine[9]);
 		obsDataBean.setEverArv(parseLine[11]);
@@ -155,7 +151,7 @@ public class HeaderData extends AbstractData {
 	
 	/**
 	 * Parsing Line 7, similar to
-	 * "Sex;M;DOB;09 Jun 1999;Patient phone;-;CD4 count;-;%;-;KS;-;ART Regimen;;Start date";
+	 * "Sex;M;DOB;09 Jun 1999;Patient phone;-;CD4 count;-;%;-;KS;-;ART Regimen;;Start date;-;";
 	 * 
 	 * @param obsDataBean
 	 * @param parseLine
@@ -173,7 +169,7 @@ public class HeaderData extends AbstractData {
 	
 	/**
 	 * Parsing Line 6, similar to
-	 * "Patient name;Dambudzo / Njolomole;;;;;Clin Stage;3;;;TB Status at initiation;-;Date, Place;01 Jul 2005 / QECH;Type;-"
+	 * "Patient name;Dambudzo/Njolomole;;;;;Clin Stage;3;;;TB Status at initiation;-;Date, Place;01 Jul 2005/QECH;Type;-;"
 	 * ;
 	 * 
 	 * @param obsDataBean
@@ -181,11 +177,6 @@ public class HeaderData extends AbstractData {
 	 */
 	private void handleLine6(ObservationDataBean obsDataBean, String[] parseLine) {
 		obsDataBean.setName(parseLine[1]);
-		//TODO mild proper handling of family and given name, also at writing
-		// like with guardioan name:
-		//String[] nameElementArrays = parseLine[1].split("/");
-		//obsDataBean.setName(nameElementArrays[1]);
-		//obsDataBean.setGuardianFirstName(nameElementArrays[2]);
 		obsDataBean.setStage(parseLine[7]);
 		obsDataBean.setTbStat(parseLine[11]);
 		String[] hivDiagnosisElementArrays = parseLine[13].split("/");

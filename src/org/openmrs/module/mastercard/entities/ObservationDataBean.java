@@ -39,6 +39,8 @@ public class ObservationDataBean {
 	
 	public final static int cd4PercentageDateTimeConceptID = 7030;
 	
+	public final static int commentsAtConclusionOfExaminationConceptID = 1620;
+	
 	public final static int cptGivenConceptID = 3590;
 	
 	public final static int cptDateConceptID = 7024;
@@ -290,14 +292,16 @@ public class ObservationDataBean {
 	 * @return the name
 	 */
 	public String getName() {
-		return name;
+		return patientGivenName + "/" + patientFamilyName;
 	}
 	
 	/**
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		String[] nameElementArrays = name.split("/");
+		this.patientGivenName = nameElementArrays[0];
+		this.patientFamilyName = nameElementArrays[1];
 	}
 	
 	/**
@@ -367,7 +371,7 @@ public class ObservationDataBean {
 	 * @return the datePlace
 	 */
 	public String getDatePlace() {
-		return dateOfHiVDiagnosis + " / " + getLocationWhereTestTookPlace();
+		return dateOfHiVDiagnosis + "/" + locationWhereTestTookPlace;
 	}
 	
 	/**
@@ -605,14 +609,16 @@ public class ObservationDataBean {
 	 * @return the guardianName
 	 */
 	public String getGuardianName() {
-		return guardianLastName + " / " + guardianFirstName;
+		return guardianFirstName + "/" + guardianLastName;
 	}
 	
 	/**
 	 * @param guardianName the guardianName to set
 	 */
 	public void setGuardianName(String guardianName) {
-		throw new NoClassDefFoundError();
+		String[] nameElementArrays = guardianName.split("/");
+		this.guardianFirstName = nameElementArrays[0];
+		this.guardianLastName = nameElementArrays[1];
 	}
 	
 	/**
@@ -889,6 +895,8 @@ public class ObservationDataBean {
 	
 	private String cd4PercentageDateTime = Constants.NOT_AVAILABLE;
 	
+	private String comment = Constants.NOT_AVAILABLE;
+	
 	/**
 	 * @return the cp4tGivem
 	 */
@@ -946,9 +954,6 @@ public class ObservationDataBean {
 	//DatePlace I
 	private String locationWhereTestTookPlace = Constants.NOT_AVAILABLE;
 	
-	//Header: todo
-	private String name = Constants.NOT_AVAILABLE;
-	
 	private String nextAppointment = Constants.NOT_AVAILABLE;
 	
 	private Double noOfArvGiven = null;
@@ -969,7 +974,42 @@ public class ObservationDataBean {
 		this.outcome = outcome;
 	}
 	
-	//Header: todo
+	
+    /**
+     * @return the patientGivenName
+     */
+    public String getPatientGivenName() {
+    	return patientGivenName;
+    }
+
+	
+    /**
+     * @param patientGivenName the patientGivenName to set
+     */
+    public void setPatientGivenName(String patientGivenName) {
+    	this.patientGivenName = patientGivenName;
+    }
+
+	
+    /**
+     * @return the patientFamilyName
+     */
+    public String getPatientFamilyName() {
+    	return patientFamilyName;
+    }
+
+	
+    /**
+     * @param patientFamilyName the patientFamilyName to set
+     */
+    public void setPatientFamilyName(String patientFamilyName) {
+    	this.patientFamilyName = patientFamilyName;
+    }
+
+	private String patientGivenName = Constants.NOT_AVAILABLE;
+	
+	private String patientFamilyName = Constants.NOT_AVAILABLE;
+	
 	private String partNos = Constants.NOT_AVAILABLE;
 	
 	private String partStart = Constants.NOT_AVAILABLE;
@@ -997,6 +1037,26 @@ public class ObservationDataBean {
 	 */
 	public void setPillCount(Double pillCount) {
 		this.pillCount = pillCount;
+	}
+	
+	public void setPillCount(String pillCount) {
+		this.pillCount = Double.valueOf(pillCount);
+	}
+	
+	/**
+	 * @return the comment
+	 */
+	public String getComment() {
+		return comment;
+	}
+	
+	/**
+	 * @param comment the comment to set
+	 */
+	public void setComment(String comment) {
+		if (comment == null) {
+			this.comment = comment;
+		}
 	}
 	
 	private String phone = Constants.NOT_AVAILABLE;

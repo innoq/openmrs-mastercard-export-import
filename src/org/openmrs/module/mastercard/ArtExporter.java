@@ -59,10 +59,10 @@ public class ArtExporter {
 	
 	public void run() throws Exception {
 		
-		executeImport();
+		executeExport();
 	}
 	
-	public void executeImport() throws Exception {
+	public void executeExport() throws Exception {
 		EncounterService es = Context.getEncounterService();
 		PatientService ps = Context.getPatientService();
 		
@@ -123,6 +123,10 @@ public class ArtExporter {
 		{//nnoArv to mastercard as identifier!
 			mastercard.setIdentifier(checkForPIIdentifier(p, p.getPatientId() + ""));
 			
+			if (p.getPatientId().equals(16218) || p.getPatientId() == 16315) {
+				logger.info("Problemfall");
+			}
+			
 			logger.info("Filing mastercard for Patient with id: " + p.getId());
 			List<Encounter> el = es.getEncounters(p, nno, null, null, null, artInitials, null, false);
 			
@@ -141,21 +145,34 @@ public class ArtExporter {
 				logger.info("  Last initial encounter");
 				headerData = new HeaderData(el.get(el.size() - 1));
 			}
-			mastercard.setHeaderData(headerData);
+			if (headerData == null) {
+				logger.error("found no Header Data for Patient with ID: " + p.getPatientId());
+			} else {
+				mastercard.setHeaderData(headerData);
+			}
 			
 			logger.info("  Getting encounters for Patient " + p.getId());
 			el = es.getEncounters(p, nno, null, null, null, artFollowups, null, false);
 			
-			logger.info("  Initializing Arrayof encounters. # of encounters: " + el.size());
-			EncounterData[] encounterDataArray = new EncounterData[el.size()];
-			int i = 0;
-			for (Encounter e : el) {
-				encounterDataArray[i] = new EncounterData(e);
-				i++;
+			if (el.size() != 0) {
+				logger.info("  Initializing Arrayof encounters. # of encounters: " + el.size());
+				EncounterData[] encounterDataArray = new EncounterData[el.size()];
+				int i = 0;
+				for (Encounter e : el) {
+					encounterDataArray[i] = new EncounterData(e);
+					i++;
+				}
+				mastercard.setEncounterData(encounterDataArray);
+			} else {
+				mastercard.setEncounterData(null);
 			}
-			mastercard.setEncounterData(encounterDataArray);
+		}
+		if (mastercard.getHeaderData() == null && mastercard.getEncounterData() == null) {
+			logger.error("found no Header & EncounterData for Patient with ID: " + p.getPatientId());
+			return null;
 		}
 		return mastercard;
+		
 	}
 	
 	/**
@@ -168,24 +185,36 @@ public class ArtExporter {
 	 * @throws IOException
 	 */
 	private void writeMastercardToCsvFile(ArvMastercardBean mastercard) throws FileNotFoundException, IOException {
-		BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("export/"
-		        + mastercard.getIdentifier() + ".csv")));
 		
-		w.newLine();
-		//writing header data header to cvs
-		w.write(mastercard.getHeaderData().getCsvSerialized());
-		w.newLine();
-		
-		//writing encounter data to csv
-		EncounterData[] encounterDataArray = mastercard.getEncounterData();
-		
-		logger.info("Iterating through " + encounterDataArray.length + " encounters");
-		for (int t = 0; t < encounterDataArray.length - 1; t++) {
-			logger.info("writing encounter " + t);
-			w.write(encounterDataArray[t].getCsvSerialized());
+		if (mastercard != null) {
+			BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("export/"
+			        + mastercard.getIdentifier() + ".csv")));
+			
 			w.newLine();
+			//writing header data header to cvs
+			w.write(mastercard.getHeaderData().getCsvSerialized());
+			w.newLine();
+			
+			//writing encounter header to csv
+			w.write(EncounterData.getHeaderSerialized());
+			w.newLine();
+			
+			EncounterData[] encounterDataArray = mastercard.getEncounterData();
+			if (encounterDataArray != null) {
+				logger.info("Iterating through " + encounterDataArray.length + " encounters");
+				for (int t = 0; t < encounterDataArray.length - 1; t++) {
+					logger.info("writing encounter " + t);
+					w.write(encounterDataArray[t].getCsvSerialized());
+					w.newLine();
+				}
+			} else {
+				logger.warn("missing encounter data to export");
+			}
+			w.close();
+		} else {
+			logger.warn("ignored empty data set");
 		}
-		w.close();
+		
 	}
 	
 	/**
