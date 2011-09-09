@@ -13,30 +13,13 @@
  */
 package org.openmrs.module.mastercard.entities;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-
 import org.apache.log4j.Logger;
-import org.openmrs.ConceptName;
 import org.openmrs.Encounter;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.PatientIdentifier;
-import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.PersonAddress;
-import org.openmrs.ProgramWorkflow;
-import org.openmrs.api.ProgramWorkflowService;
-import org.openmrs.api.context.Context;
 import org.openmrs.mastercard.exceptions.WrongFormatException;
-import org.openmrs.module.mastercard.ArtExporter;
-import org.openmrs.module.mastercard.Helper;
 
 /**
  *
@@ -49,8 +32,8 @@ public class HeaderData extends AbstractData {
 		super(e);
 	}
 	
-	public HeaderData(String[] str) throws WrongFormatException {
-		super(str);
+	public HeaderData(String string) throws WrongFormatException {
+		super(string);
 	}
 	
 	protected void marshalEncounterData() {
@@ -79,8 +62,23 @@ public class HeaderData extends AbstractData {
 	 * @see org.openmrs.module.mastercard.entities.AbstractData#demarshalData(java.lang.String[])
 	 */
 	@Override
-	protected void demarshalData(String[] stringArray) throws WrongFormatException {
+	protected void demarshalData(String string) throws WrongFormatException {
 		obsDataBean = new ObservationDataBean();
+		
+		//Here we split the single string into the basic array structure from mastercard format
+		//as assembled in the calling ArtImporter function.
+		String[] stringArray = string.split("#;;#");
+		
+		if (stringArray.length != 10) {
+			throw new WrongFormatException("not enough header lines found - instead of 10: " + stringArray.length);
+		}
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Breaking line " + string + " into:");
+			for (String lineElement : stringArray) {
+				logger.debug("broken into: " + lineElement);
+			}
+		}
 		
 		if (!stringArray[0].isEmpty())
 			throw new WrongFormatException("Header Line 0 expected to be empty /'/'");

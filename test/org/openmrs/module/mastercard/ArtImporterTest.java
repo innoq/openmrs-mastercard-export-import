@@ -108,8 +108,8 @@ public class ArtImporterTest {
 		//"NNO;29 Jun 2006;-;17.8;-;outcome;-;arvReg;-;-;-;-;60.0;60.0;-;-;-;-;";
 		ObservationDataBean obs = encounterData.getObservations();
 		assertEquals("29 Jun 2006", encounterData.getDateOfEncounter());
-		assertEquals("17.8", obs.getHgt());
-		assertEquals("-", obs.getWgt());
+		assertEquals("-", obs.getHgt());
+		assertEquals("17.8", obs.getWgt());
 		assertEquals("outcome", obs.getOutcome());
 	}
 }

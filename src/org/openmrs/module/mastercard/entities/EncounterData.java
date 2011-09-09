@@ -13,12 +13,8 @@
  */
 package org.openmrs.module.mastercard.entities;
 
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.openmrs.Encounter;
-import org.openmrs.Obs;
-import org.openmrs.PatientState;
 import org.openmrs.mastercard.exceptions.WrongFormatException;
 
 /**
@@ -51,8 +47,8 @@ public class EncounterData extends AbstractData {
 		super(e);
 	}
 	
-	public EncounterData(String[] strArr) throws WrongFormatException {
-		super(strArr);
+	public EncounterData(String string) throws WrongFormatException {
+		super(string);
 	}
 	
 	static Logger logger = Logger.getLogger(EncounterData.class);
@@ -109,21 +105,14 @@ public class EncounterData extends AbstractData {
 	 * @see org.openmrs.module.mastercard.entities.AbstractData#demarshalData(java.lang.String[])
 	 */
 	@Override
-	protected void demarshalData(String[] stringArray) throws WrongFormatException {
+	protected void demarshalData(String string) throws WrongFormatException {
 		obsDataBean = new ObservationDataBean();
 		
-		if (!stringArray[0]
-		        .equals("Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;"))
-			throw new WrongFormatException("Header Line 0 expected to be Encounter Data Header /'/'");
-		
-		if (!stringArray[1].isEmpty())
-			throw new WrongFormatException("Header Line 1 expected to be empty /'/'");
-		
-		handleLine(obsDataBean, parseLine(stringArray[2]));
+		handleLine(obsDataBean, parseLine(string));
 	}
 	
 	/**
-	 * Parsing Encounter Line like: NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT
+	 * Parsing Encounter Line like: "NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT
 	 * SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;
 	 * 
 	 * @param obsDataBean
@@ -132,8 +121,10 @@ public class EncounterData extends AbstractData {
 	private void handleLine(ObservationDataBean obsDataBean, String[] parseLine) {
 		locationOfEncounter = parseLine[0];
 		dateOfEncounter = parseLine[1];
-		obsDataBean.setHgt(parseLine[3]);
-		obsDataBean.setWgt(parseLine[4]);
+		obsDataBean.setHgt(parseLine[2]);
+		obsDataBean.setWgt(parseLine[3]);
+		
+		//line 4 ??
 		obsDataBean.setOutcome(parseLine[5]);
 		
 		//TODO cneumann check wether this matches outcome date?

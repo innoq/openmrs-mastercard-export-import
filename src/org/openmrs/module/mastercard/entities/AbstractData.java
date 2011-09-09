@@ -51,10 +51,10 @@ public abstract class AbstractData {
 		marshalEncounterData();
 	}
 	
-	public AbstractData(String[] stringArray) throws WrongFormatException {
+	public AbstractData(String string) throws WrongFormatException {
 		super();
 		init();
-		demarshalData(stringArray);
+		demarshalData(string);
 	}
 	
 	static Logger logger = Logger.getLogger(AbstractData.class);
@@ -82,7 +82,7 @@ public abstract class AbstractData {
 		return obsDataBean;
 	}
 	
-	protected abstract void demarshalData(String[] stringArray) throws WrongFormatException;
+	protected abstract void demarshalData(String stringArray) throws WrongFormatException;
 	
 	public abstract String getCsvSerialized();
 	
@@ -399,7 +399,7 @@ public abstract class AbstractData {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Breaking line " + string + " into:");
 			for (String lineElement : lineElementArray) {
-				logger.debug("borken into: " + lineElement);
+				logger.debug("broken into: " + lineElement);
 			}
 		}
 		return lineElementArray;

@@ -167,11 +167,20 @@ public class ArtImporter {
 	 */
 	protected EncounterData[] parseArrayForEncounterData(String[] encounterStringArray) throws WrongFormatException {
 		
-		EncounterData[] encounterDataArray = new EncounterData[encounterStringArray.length];
+		EncounterData[] encounterDataArray = new EncounterData[encounterStringArray.length - 2];
 		
 		for (int i = 0; i < encounterStringArray.length; i++) {
-			EncounterData encounterData = (EncounterData) new EncounterData(encounterStringArray);
-			encounterDataArray[i] = encounterData;
+			
+			if (!encounterStringArray[0]
+			        .equals("Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;"))
+				throw new WrongFormatException("Header Line 0 expected to be Encounter Data Header /'/'");
+			
+			if (!encounterStringArray[1].isEmpty())
+				throw new WrongFormatException("Header Line 1 expected to be empty /'/'");
+			if (i > 1) {
+				EncounterData encounterData = (EncounterData) new EncounterData(encounterStringArray[i]);
+				encounterDataArray[i - 2] = encounterData;
+			}
 		}
 		return encounterDataArray;
 	}
@@ -184,7 +193,19 @@ public class ArtImporter {
 	 * @throws WrongFormatException
 	 */
 	protected HeaderData parseArrayForHeaderData(String[] headerStringArray) throws WrongFormatException {
-		HeaderData headerData = (HeaderData) new HeaderData(headerStringArray);
+		
+		//To keep signatures symetric and allow abstraction we assemble the different 
+		// mastercard-headerlines to a single string and disassemble those in HeaderData.demarshalData()
+		String assembledHelperString = new String();
+		assembledHelperString = assembledHelperString + headerStringArray[0];
+		
+		for (int i = 1; i < headerStringArray.length; i++) {
+			assembledHelperString = assembledHelperString + "#;;#";
+			assembledHelperString = assembledHelperString + headerStringArray[i];
+		}
+		
+		//That is what we want to call with a single string parameter, see HeaderData.demarshalData()
+		HeaderData headerData = (HeaderData) new HeaderData(assembledHelperString);
 		return headerData;
 	}
 	
