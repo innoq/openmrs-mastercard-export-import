@@ -44,9 +44,9 @@ public class ArtImporter {
 		// properties
 		Properties prop = new Properties();
 		prop.load(new FileInputStream(openmrsRuntimeProperties));
-		String connectionUser = prop.getProperty("connection.username");
-		String conncetionPw = prop.getProperty("connection.password");
-		String conncetionUrl = prop.getProperty("connection.url");
+		String connectionUser = prop.getProperty("connectionImport.username");
+		String conncetionPw = prop.getProperty("connectionImport.password");
+		String conncetionUrl = prop.getProperty("connectionImport.url");
 		
 		// connection init
 		Context.startup(conncetionUrl, connectionUser, conncetionPw, prop);
@@ -57,7 +57,6 @@ public class ArtImporter {
 	}
 	
 	public void run() throws Exception {
-		
 		try {
 			executeImport();
 		}
@@ -65,7 +64,6 @@ public class ArtImporter {
 			logger.error("Error generated", e);
 			throw new Exception(e);
 		}
-		
 	}
 	
 	public void executeImport() throws Exception, WrongFormatException {
@@ -103,44 +101,39 @@ public class ArtImporter {
 	private ArvMastercardBean getMastercardFromFile(File file) throws IOException, WrongFormatException {
 		ArvMastercardBean masterCardBean = null;
 		try {
-			String[] headerStringArray = new String[8];
+			String[] headerStringArray = new String[10];
 			String[] encounterStringArray = null;
 			
 			BufferedReader in = new BufferedReader(new FileReader(file));
 			String str;
-			Set<String> encounterStringSet = new HashSet<String>();
+			HashMap<Integer, String> encounterStringMap = new HashMap<Integer, String>();
 			
 			int i = 0;
 			while ((str = in.readLine()) != null) {
 				logger.info(i + " " + str);
-				if (i == 1)
-					headerStringArray[0] = str;
-				if (i == 2)
-					headerStringArray[1] = str;
-				if (i == 4)
-					headerStringArray[2] = str;
-				if (i == 5)
-					headerStringArray[3] = str;
-				if (i == 6)
-					headerStringArray[4] = str;
-				if (i == 7)
-					headerStringArray[5] = str;
-				if (i == 8)
-					headerStringArray[6] = str;
-				if (i == 9)
-					headerStringArray[7] = str;
-				if (i > 12)
-					logger.info("add to array");
-				encounterStringSet.add(str);
+				if (i < 10) {
+					logger.info("Adding headerStringArray[" + i + "] " + str);
+					headerStringArray[i] = str;
+				}
+				if (i > 10) {
+					logger.info("Adding encounterStringMap[" + (i - 11) + "] " + str);
+					encounterStringMap.put(new Integer(i - 11), str);
+				}
 				i++;
 			}
 			in.close();
 			
+			List<Integer> sortedHashKeys = new ArrayList<Integer>();
+			sortedHashKeys.addAll(encounterStringMap.keySet());
+			
+			Collections.sort(sortedHashKeys);
+			
 			i = 0;
-			encounterStringArray = new String[encounterStringSet.size() - 12];
-			for (String es : encounterStringSet) {
-				encounterStringArray[i] = es;
-				logger.info("filed to array[" + i + "]" + encounterStringArray[i]);
+			encounterStringArray = new String[encounterStringMap.size()];
+			Iterator<Integer> iter = sortedHashKeys.iterator();
+			while (iter.hasNext()) {
+				encounterStringArray[i] = encounterStringMap.get(iter.next());
+				logger.info("files to encounterStringArray[" + i + "]" + encounterStringArray[i]);
 				i++;
 			}
 			
@@ -167,19 +160,17 @@ public class ArtImporter {
 	 */
 	protected EncounterData[] parseArrayForEncounterData(String[] encounterStringArray) throws WrongFormatException {
 		
-		EncounterData[] encounterDataArray = new EncounterData[encounterStringArray.length - 2];
+		EncounterData[] encounterDataArray = new EncounterData[encounterStringArray.length - 1];
 		
 		for (int i = 0; i < encounterStringArray.length; i++) {
 			
 			if (!encounterStringArray[0]
 			        .equals("Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;"))
 				throw new WrongFormatException("Header Line 0 expected to be Encounter Data Header /'/'");
-			
-			if (!encounterStringArray[1].isEmpty())
-				throw new WrongFormatException("Header Line 1 expected to be empty /'/'");
-			if (i > 1) {
+
+			if (i > 0) {
 				EncounterData encounterData = (EncounterData) new EncounterData(encounterStringArray[i]);
-				encounterDataArray[i - 2] = encounterData;
+				encounterDataArray[i - 1] = encounterData;
 			}
 		}
 		return encounterDataArray;

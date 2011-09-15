@@ -111,5 +111,16 @@ public class ArtImporterTest {
 		assertEquals("-", obs.getHgt());
 		assertEquals("17.8", obs.getWgt());
 		assertEquals("outcome", obs.getOutcome());
+		
+		encounterData = encounterDataArray[7];
+		//"Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;";
+		//NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;
+		obs = encounterData.getObservations();
+		assertEquals("26 Apr 2011", encounterData.getDateOfEncounter());
+		assertEquals("138.0", obs.getHgt());
+		assertEquals("30.2", obs.getWgt());
+		assertEquals("outcome", obs.getOutcome());
+		assertEquals("TB NOT SUSPECTED", obs.getTbStat());
+		assertEquals("18 Jul 2011", obs.getNextAppointment());
 	}
 }

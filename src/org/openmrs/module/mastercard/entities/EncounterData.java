@@ -112,8 +112,8 @@ public class EncounterData extends AbstractData {
 	}
 	
 	/**
-	 * Parsing Encounter Line like: "NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT
-	 * SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;
+	 * "Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;";
+ 	 * NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;
 	 * 
 	 * @param obsDataBean
 	 * @param parseLine
