@@ -46,17 +46,16 @@ public class ArtImporterTest {
 		stringArray1[8] = "Guardian Name;Njolomole / Watson;;;;;Height;-;Weight;17.8;Ever taken ARVs;-;Alt 1st Line;-;-";
 		stringArray1[9] = "Agrees to FUP;YES;Guardian Relation;-;Guardian Phone;-;Age at init.;-;;;Last ARVs (drug, date);-;2nd Line;-;-;;Unknown Obs;-";
 		
-		stringArray2 = new String[10];
+		stringArray2 = new String[9];
 		stringArray2[0] = "Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;";
-		stringArray2[1] = "";
-		stringArray2[2] = "NNO;29 Jun 2006;-;17.8;-;outcome;-;arvReg;-;-;-;-;60.0;60.0;-;-;-;-;";
-		stringArray2[3] = "NNO;03 Aug 2006;-;18.3;-;outcome;-;arvReg;-;-;-;-;60.0;60.0;-;-;-;-;";
-		stringArray2[4] = "NNO;15 Feb 2007;110.0;19.1;-;outcome;-;arvReg;-;-;8.0;-;39.0;39.0;-;-;-;-;";
-		stringArray2[5] = "NNO;27 Nov 2007;118.0;20.9;-;outcome;-;arvReg;-;-;4.0;-;39.0;39.0;-;-;-;-;";
-		stringArray2[6] = "NNO;22 May 2008;122.0;22.9;-;outcome;-;arvReg;-;-;-;-;120.0;120.0;-;-;19 Jun 2008;-;";
-		stringArray2[7] = "NNO;28 Apr 2009;-;25.2;-;outcome;-;arvReg;No;-;-;-;165.0;165.0;-;-;21 Jul 2009;-;";
-		stringArray2[8] = "NNO;20 Jan 2011;132.0;28.4;-;outcome;-;arvReg;-;-;8.0;-;165.0;165.0;-;-;14 Apr 2011;-;";
-		stringArray2[9] = "NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;";
+		stringArray2[1] = "NNO;12 May 2006;-;59.0;-;outcome;-;arvReg;-;-;-;-;-;-;-;-;-;-;";
+		stringArray2[2] = "NNO;31 May 2006;-;62.1;-;outcome;-;arvReg;-;-;-;-;-;-;-;-;-;-;";
+		stringArray2[3] = "NNO;28 Jun 2006;-;65.8;-;outcome;-;arvReg;-;-;1.0;-;-;-;-;-;-;-;";
+		stringArray2[4] = "NNO;10 Mar 2008;172.0;62.6;-;outcome;-;arvReg;-;-;7.0;-;120.0;120.0;-;-;-;-;";
+		stringArray2[5] = "NNO;28 Aug 2008;172.0;61.3;-;outcome;-;arvReg;No;-;4.0;-;120.0;120.0;-;-;23 Oct 2008;-;";
+		stringArray2[6] = "NNO;12 Mar 2009;172.0;61.9;-;outcome;-;arvReg;No;-;3.0;-;120.0;120.0;-;-;07 May 2009;-;";
+		stringArray2[7] = "NNO;11 Mar 2010;172.0;63.7;-;outcome;-;arvReg;No;-;2.0;-;0.0;0.0;-;-;11 Mar 2010;-;";
+		stringArray2[8] = "NNO;22 Feb 2011;172.0;59.5;-;outcome;-;arvReg;No;-;10.0;-;180.0;180.0;-;-;17 May 2011;-;";
 	}
 	
 	/**
@@ -107,20 +106,21 @@ public class ArtImporterTest {
 		//"Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;";
 		//"NNO;29 Jun 2006;-;17.8;-;outcome;-;arvReg;-;-;-;-;60.0;60.0;-;-;-;-;";
 		ObservationDataBean obs = encounterData.getObservations();
-		assertEquals("29 Jun 2006", encounterData.getDateOfEncounter());
+		assertEquals("12 May 2006", encounterData.getDateOfEncounter());
 		assertEquals("-", obs.getHgt());
-		assertEquals("17.8", obs.getWgt());
+		assertEquals("59.0", obs.getWgt());
 		assertEquals("outcome", obs.getOutcome());
+		assertEquals("-", obs.getNextAppointment());
 		
 		encounterData = encounterDataArray[7];
 		//"Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;";
 		//NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;
 		obs = encounterData.getObservations();
-		assertEquals("26 Apr 2011", encounterData.getDateOfEncounter());
-		assertEquals("138.0", obs.getHgt());
-		assertEquals("30.2", obs.getWgt());
+		assertEquals("22 Feb 2011", encounterData.getDateOfEncounter());
+		assertEquals("172.0", obs.getHgt());
+		assertEquals("59.5", obs.getWgt());
 		assertEquals("outcome", obs.getOutcome());
-		assertEquals("TB NOT SUSPECTED", obs.getTbStat());
-		assertEquals("18 Jul 2011", obs.getNextAppointment());
+		assertEquals("-", obs.getTbStat());
+		assertEquals("17 May 2011", obs.getNextAppointment());
 	}
 }

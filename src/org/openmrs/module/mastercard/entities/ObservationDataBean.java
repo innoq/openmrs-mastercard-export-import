@@ -339,6 +339,14 @@ public class ObservationDataBean {
 		this.noOfArvGiven = noOfArvGiven;
 	}
 	
+	public void setNoOfArvGiven(String noOfArvGiven) {
+		if (!Constants.NOT_AVAILABLE.equals(noOfArvGiven)) {
+			this.noOfArvGiven = Double.valueOf(noOfArvGiven);
+		} else {
+			this.noOfArvGiven = null;
+		}
+	}
+	
 	/**
 	 * @return the stage
 	 */

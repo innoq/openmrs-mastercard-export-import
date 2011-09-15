@@ -88,16 +88,29 @@ public class EncounterData extends AbstractData {
 		
 		String unknownObs = Constants.NOT_AVAILABLE;
 		
-		return csv(loc, date, obsDataBean.getHgt(), obsDataBean.getWgt(), outcomeEnrollment,
-		    "outcome",
+		return csv(
+			loc, //0
+			date, //1
+			obsDataBean.getHgt(), //2 
+			obsDataBean.getWgt(), //3
+			outcomeEnrollment, //4
+		    "outcome", //5
 		    //obsDataBean.getOutcome(),
-		    outcomeDate,
-		    "arvReg",
+		    outcomeDate, //6
+		    "arvReg", //7
 		    //obsDataBean.getArvRegimen(), 
-		    obsDataBean.getSideEffectsYesNo(), obsDataBean.getTbStat(), obsDataBean.getPillCountAsString(),
-		    obsDataBean.getDosesMissed(), obsDataBean.getNoOfArvGivenAsString(), /* doses missed?*/
-		    obsDataBean.getNoOfArvGivenAsString(), obsDataBean.getCp4tGivenAsString(), obsDataBean.getComment(),
-		    obsDataBean.getNextAppointment(), unknownObs); //unknownObs
+		    obsDataBean.getSideEffectsYesNo(), //8
+		    obsDataBean.getTbStat(), //9
+		    obsDataBean.getPillCountAsString(), //10
+		    obsDataBean.getDosesMissed(), //11
+		    //TODO cneumann check values please!!
+		    obsDataBean.getNoOfArvGivenAsString(), //12 -> should be /* doses missed?*/
+		    obsDataBean.getNoOfArvGivenAsString(), //13 
+		    obsDataBean.getCp4tGivenAsString(), //14 
+		    obsDataBean.getComment(), //15
+		    obsDataBean.getNextAppointment(), //16
+		    unknownObs //17
+		    ); //unknownObs
 	}
 	
 	/**
@@ -135,9 +148,11 @@ public class EncounterData extends AbstractData {
 		obsDataBean.setPillCount(parseLine[10]);
 		obsDataBean.setDosesMissed(parseLine[11]);
 		obsDataBean.setArvDrugsReceived(parseLine[12]);
+		obsDataBean.setNoOfArvGiven(parseLine[13]);
 		obsDataBean.setCp4tGiven(parseLine[13]);
-		obsDataBean.setComment(parseLine[14]);
-		
+		obsDataBean.setComment(parseLine[15]);
+		obsDataBean.setNextAppointment(parseLine[16]);
+		// unknown OBS: parseLine[18];
 	}
 	
 	/**
