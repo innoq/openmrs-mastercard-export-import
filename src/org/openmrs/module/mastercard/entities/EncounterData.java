@@ -16,6 +16,7 @@ package org.openmrs.module.mastercard.entities;
 import org.apache.log4j.Logger;
 import org.openmrs.Encounter;
 import org.openmrs.mastercard.exceptions.WrongFormatException;
+import org.openmrs.module.mastercard.Helper;
 
 /**
  *
@@ -77,7 +78,7 @@ public class EncounterData extends AbstractData {
 	private String renderEncounterToCsv(Encounter encounter) {
 		
 		String loc = map(encounter.getLocation().getName());
-		String date = date(encounter.getEncounterDatetime());
+		String date = Helper.getStringFromDate(encounter.getEncounterDatetime());
 		
 		//PatientState s = currentProgramWorkflowStatus(1, encounter.getPatient(), encounter.getEncounterDatetime());
 		
@@ -88,12 +89,11 @@ public class EncounterData extends AbstractData {
 		
 		String unknownObs = Constants.NOT_AVAILABLE;
 		
-		return csv(
-			loc, //0
-			date, //1
-			obsDataBean.getHgt(), //2 
-			obsDataBean.getWgt(), //3
-			outcomeEnrollment, //4
+		return csv(loc, //0
+		    date, //1
+		    obsDataBean.getHgt(), //2 
+		    obsDataBean.getWgt(), //3
+		    outcomeEnrollment, //4
 		    "outcome", //5
 		    //obsDataBean.getOutcome(),
 		    outcomeDate, //6
@@ -110,7 +110,7 @@ public class EncounterData extends AbstractData {
 		    obsDataBean.getComment(), //15
 		    obsDataBean.getNextAppointment(), //16
 		    unknownObs //17
-		    ); //unknownObs
+		); //unknownObs
 	}
 	
 	/**
@@ -125,8 +125,9 @@ public class EncounterData extends AbstractData {
 	}
 	
 	/**
-	 * "Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;";
- 	 * NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT SUSPECTED;0.0;-;180.0;180.0;-;-;18 Jul 2011;-;
+	 * "Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;"
+	 * ; NNO;26 Apr 2011;138.0;30.2;-;outcome;-;arvReg;-;TB NOT SUSPECTED;0.0;-;180.0;180.0;-;-;18
+	 * Jul 2011;-;
 	 * 
 	 * @param obsDataBean
 	 * @param parseLine

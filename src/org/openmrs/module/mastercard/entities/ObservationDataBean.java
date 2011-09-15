@@ -13,10 +13,12 @@
  */
 package org.openmrs.module.mastercard.entities;
 
+import java.util.Date;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.openmrs.PersonAddress;
+import org.openmrs.module.mastercard.Helper;
 
 /**
  *
@@ -462,15 +464,23 @@ public class ObservationDataBean {
 	/**
 	 * @return the dob
 	 */
-	public String getDateOfBirth() {
+	public Date getDateOfBirth() {
 		return dateOfBirth;
 	}
 	
 	/**
-	 * @param dob the dob to set
+	 * @return the dob
 	 */
-	public void setDateOfBirth(String dob) {
+	public String getDateOfBirthAsString() {
+		return Helper.getStringFromDate(dateOfBirth);
+	}
+	
+	public void setDateOfBirth(Date dob) {
 		this.dateOfBirth = dob;
+	}
+	
+	public void setDateOfBirth(String dob) {
+		this.dateOfBirth = Helper.getDateFromString(dob);
 	}
 	
 	/**
@@ -946,7 +956,7 @@ public class ObservationDataBean {
 	
 	private String d4TDate = Constants.NOT_AVAILABLE;
 	
-	private String dateOfBirth = Constants.NOT_AVAILABLE;
+	private Date dateOfBirth = null;
 	
 	//DatePlace II
 	private String dateOfHiVDiagnosis = Constants.NOT_AVAILABLE;

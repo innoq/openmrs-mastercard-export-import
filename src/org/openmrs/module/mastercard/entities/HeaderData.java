@@ -156,7 +156,7 @@ public class HeaderData extends AbstractData {
 	 */
 	private void handleLine7(ObservationDataBean obsDataBean, String[] parseLine) {
 		obsDataBean.setSex(parseLine[1]);
-		obsDataBean.setDateOfBirth(parseLine[3]);
+		obsDataBean.setDateOfBirth((String) parseLine[3]);
 		obsDataBean.setPhone(parseLine[5]);
 		obsDataBean.setCd4(parseLine[7]);
 		obsDataBean.setCd4Percentage(parseLine[9]);
@@ -246,9 +246,9 @@ public class HeaderData extends AbstractData {
 		    "TB Status at initiation", obsDataBean.getTbStat(), "Date, Place", obsDataBean.getDatePlace(), "Type",
 		    obsDataBean.getType());
 		r += Constants.NEWLINE;
-		r += csv("Sex", obsDataBean.getSex(), "DOB", obsDataBean.getDateOfBirth(), "Patient phone", obsDataBean.getPhone(),
-		    "CD4 count", obsDataBean.getCd4(), "%", obsDataBean.getCd4Percentage(), "KS", obsDataBean.getKs(),
-		    "ART Regimen", "", "Start date", obsDataBean.getArvDrugsReceived()); //TODO cneumann: check on getArvDrugsReceived
+		r += csv("Sex", obsDataBean.getSex(), "DOB", obsDataBean.getDateOfBirthAsString(), "Patient phone",
+		    obsDataBean.getPhone(), "CD4 count", obsDataBean.getCd4(), "%", obsDataBean.getCd4Percentage(), "KS",
+		    obsDataBean.getKs(), "ART Regimen", "", "Start date", obsDataBean.getArvDrugsReceived()); //TODO cneumann: check on getArvDrugsReceived
 		r += Constants.NEWLINE;
 		r += csv("Phys. Address", obsDataBean.getAddr(), "", "", "", "", "CD4 date", obsDataBean.getCd4Date(), "", "",
 		    "Pregnant at initiation", obsDataBean.getPreg(), "1st Line", "d4T 3TC NVP", obsDataBean.getD4TDate());

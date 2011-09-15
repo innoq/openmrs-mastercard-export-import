@@ -2,42 +2,31 @@ package org.openmrs.module.mastercard;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
-import org.openmrs.ConceptName;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
-import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
-import org.openmrs.PatientProgram;
-import org.openmrs.PatientState;
-import org.openmrs.PersonAddress;
-import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.PatientService;
-import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.mastercard.entities.ArvMastercardBean;
 import org.openmrs.module.mastercard.entities.EncounterData;
 import org.openmrs.module.mastercard.entities.HeaderData;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ArtExporter {
 	
 	static Logger logger = Logger.getLogger(ArtExporter.class);
 	
-	private Helper h = new Helper();
-	
 	public ArtExporter() {
 	}
 	
 	public static void main(String[] args) throws Exception {
 		// parameters
-		String importFile = args[0];
 		String openmrsRuntimeProperties = args[1];
 		String openmrsUser = args[2];
 		String openmrsPw = args[3];
@@ -259,12 +248,6 @@ public class ArtExporter {
 		// Arrays.asList(ps.getPatientIdentifierTypeByName("ARV Number"))),
 		// false);
 		return patients;
-	}
-	
-	private SessionFactory sessionFactory() {
-		return null;
-		//		return ((HibernatePihMalawiQueryDao) Context.getRegisteredComponents(
-		//			HibernatePihMalawiQueryDao.class).get(0)).getSessionFactory();
 	}
 	
 }

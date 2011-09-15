@@ -11,6 +11,7 @@ import org.openmrs.PatientIdentifierType;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.PersonAddress;
+import org.openmrs.PersonName;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.PatientService;
@@ -89,13 +90,20 @@ public class ArtImporter {
 				// Get filename of file or directory
 				File file = children[i];
 				logger.info("Found files in export: " + file);
-				getMastercardFromFile(file);
+				//getMastercardFromFile(file);
+				importPatientsData(es, ps, null, file);
 			}
 		}
 		
-		//for (Patient p : patients) {
-		//	importPatientsData(es, nno, artInitials, artFollowups, p);
-		//}
+		logger.info("Import finished");
+	}
+	
+	private void importPatientsData(EncounterService es, PatientService ps, Location nno, File file)
+	                                                                                                throws FileNotFoundException,
+	                                                                                                IOException,
+	                                                                                                WrongFormatException {
+		ArvMastercardBean mastercard = getMastercardFromFile(file);
+		writeMastercardToDatabase(es, ps, nno, mastercard);
 	}
 	
 	private ArvMastercardBean getMastercardFromFile(File file) throws IOException, WrongFormatException {
@@ -151,6 +159,23 @@ public class ArtImporter {
 		return masterCardBean;
 	}
 	
+	private void writeMastercardToDatabase(EncounterService es, PatientService ps, Location nno, ArvMastercardBean mastercard)
+	                                                                                                                          throws FileNotFoundException,
+	                                                                                                                          IOException {
+		Patient p = new Patient();
+		p.setBirthdate(mastercard.getHeaderData().getObservations().getDateOfBirth());
+		PersonName pName = new PersonName();
+		pName.setFamilyName(mastercard.getHeaderData().getObservations().getPatientFamilyName());
+		pName.setGivenName(mastercard.getHeaderData().getObservations().getPatientGivenName());
+		p.addName(pName);
+		p.setDateChanged(new Date(System.currentTimeMillis()));
+		p.setGender(mastercard.getHeaderData().getObservations().getSex());
+		
+		ps.createPatient(p);
+		//TODO mild finish method
+		
+	}
+	
 	/**
 	 * Auto generated method comment
 	 * 
@@ -167,7 +192,7 @@ public class ArtImporter {
 			if (!encounterStringArray[0]
 			        .equals("Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;"))
 				throw new WrongFormatException("Header Line 0 expected to be Encounter Data Header /'/'");
-
+			
 			if (i > 0) {
 				EncounterData encounterData = (EncounterData) new EncounterData(encounterStringArray[i]);
 				encounterDataArray[i - 1] = encounterData;
@@ -198,25 +223,6 @@ public class ArtImporter {
 		//That is what we want to call with a single string parameter, see HeaderData.demarshalData()
 		HeaderData headerData = (HeaderData) new HeaderData(assembledHelperString);
 		return headerData;
-	}
-	
-	/**
-	 * Auto generated method comment
-	 * 
-	 * @param es
-	 * @param nno
-	 * @param artInitials
-	 * @param artFollowups
-	 * @param p
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	private void importPatientsData(EncounterService es, Location nno, List<EncounterType> artInitials,
-	                                List<EncounterType> artFollowups, Patient p) throws FileNotFoundException, IOException {
-		
-		ArvMastercardBean mastercard = collectMastercardData(es, nno, artInitials, artFollowups, p);
-		
-		writeMastercardToDatabase(mastercard);
 	}
 	
 	/**
@@ -271,36 +277,6 @@ public class ArtImporter {
 			mastercard.setEncounterData(encounterDataArray);
 		}
 		return mastercard;
-	}
-	
-	/**
-	 * Auto generated method comment
-	 * 
-	 * @param mastercard
-	 * @param headerData
-	 * @param encounterDataArray
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	private void writeMastercardToDatabase(ArvMastercardBean mastercard) throws FileNotFoundException, IOException {
-		BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("export/"
-		        + mastercard.getIdentifier() + ".csv")));
-		
-		w.newLine();
-		//writing header data header to cvs
-		w.write(mastercard.getHeaderData().getCsvSerialized());
-		w.newLine();
-		
-		//writing encounter data to csv
-		EncounterData[] encounterDataArray = mastercard.getEncounterData();
-		
-		logger.info("Iterating through " + encounterDataArray.length + " encounters");
-		for (int t = 0; t < encounterDataArray.length - 1; t++) {
-			logger.info("writing encounter " + t);
-			w.write(encounterDataArray[t].getCsvSerialized());
-			w.newLine();
-		}
-		w.close();
 	}
 	
 	/**

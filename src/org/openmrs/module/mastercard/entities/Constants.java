@@ -18,7 +18,7 @@ package org.openmrs.module.mastercard.entities;
  */
 public class Constants {
 	
-	protected static final String NOT_AVAILABLE = "-";
+	public static final String NOT_AVAILABLE = "-";
 	
-	protected static final String NEWLINE = "\n";
+	public static final String NEWLINE = "\n";
 }

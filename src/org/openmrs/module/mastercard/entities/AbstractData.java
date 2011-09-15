@@ -115,10 +115,6 @@ public abstract class AbstractData {
 		return "" + valueNumeric;
 	}
 	
-	protected String date(Date date) {
-		return new SimpleDateFormat("dd MMM yyyy").format(date);
-	}
-	
 	protected ProgramWorkflowService programWorkflowService() {
 		return Context.getProgramWorkflowService();
 	}
@@ -220,7 +216,7 @@ public abstract class AbstractData {
 		obsDataBean.setPatientFamilyName(h(encounter.getPatient().getFamilyName()));
 		
 		obsDataBean.setSex(encounter.getPatient().getGender());
-		obsDataBean.setDateOfBirth(date(encounter.getPatient().getBirthdate()));
+		obsDataBean.setDateOfBirth(encounter.getPatient().getBirthdate());
 		
 		for (Obs o : encounter.getAllObs()) {
 			switch (o.getConcept().getConceptId().intValue()) {
@@ -268,7 +264,7 @@ public abstract class AbstractData {
 					obsDataBean.setLocationWhereTestTookPlace(h(o.getValueText()));
 					break;
 				case ObservationDataBean.dateOfHivDiagnososConceptID:
-					obsDataBean.setDateOfHiVDiagnosis(date(o.getValueDatetime()));
+					obsDataBean.setDateOfHiVDiagnosis(Helper.getStringFromDate((o.getValueDatetime())));
 					break;
 				case ObservationDataBean.wgtConceptID:
 					obsDataBean.setWgt(numeric(o.getValueNumeric()));
@@ -333,7 +329,7 @@ public abstract class AbstractData {
 					break;
 				
 				case ObservationDataBean.nextAppointmentConceptID:
-					obsDataBean.setNextAppointment(date(o.getValueDatetime()));
+					obsDataBean.setNextAppointment(Helper.getStringFromDate(o.getValueDatetime()));
 					break;
 				
 				case ObservationDataBean.noOfArvGivenConceptID:
