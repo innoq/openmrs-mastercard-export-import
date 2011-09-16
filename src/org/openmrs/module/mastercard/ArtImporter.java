@@ -168,8 +168,23 @@ public class ArtImporter {
 		pName.setFamilyName(mastercard.getHeaderData().getObservations().getPatientFamilyName());
 		pName.setGivenName(mastercard.getHeaderData().getObservations().getPatientGivenName());
 		p.addName(pName);
+		
 		p.setDateChanged(new Date(System.currentTimeMillis()));
 		p.setGender(mastercard.getHeaderData().getObservations().getSex());
+		
+		//Settping Identifiers
+		Set piSet = new HashSet();
+		PatientIdentifier pi1 = new PatientIdentifier();
+		pi1.setIdentifierType(Context.getPatientService().getPatientIdentifierType("ARV Number"));
+		pi1.setIdentifier("NNO" + System.currentTimeMillis());
+		piSet.add(pi1);
+		
+		PatientIdentifier pi2 = new PatientIdentifier();
+		pi2.setIdentifierType(Context.getPatientService().getPatientIdentifierType("PART Number"));
+		pi2.setIdentifier(mastercard.getHeaderData().getObservations().getPartNos());
+		piSet.add(pi2);
+		
+		p.setIdentifiers(piSet);
 		
 		ps.createPatient(p);
 		//TODO mild finish method
