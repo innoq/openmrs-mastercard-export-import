@@ -1,5 +1,22 @@
 package org.openmrs.module.mastercard;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.openmrs.Encounter;
@@ -8,23 +25,15 @@ import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
-import org.openmrs.PatientProgram;
-import org.openmrs.PatientState;
-import org.openmrs.PersonAddress;
 import org.openmrs.PersonName;
-import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.EncounterService;
+import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
-import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.mastercard.exceptions.WrongFormatException;
 import org.openmrs.module.mastercard.entities.ArvMastercardBean;
 import org.openmrs.module.mastercard.entities.EncounterData;
 import org.openmrs.module.mastercard.entities.HeaderData;
-
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 public class ArtImporter {
 	
@@ -70,6 +79,7 @@ public class ArtImporter {
 	public void executeImport() throws Exception, WrongFormatException {
 		EncounterService es = Context.getEncounterService();
 		PatientService ps = Context.getPatientService();
+		LocationService ls = Context.getLocationService();
 		
 		logger.debug("Start importing");
 		
@@ -91,7 +101,9 @@ public class ArtImporter {
 				File file = children[i];
 				logger.info("Found files in export: " + file);
 				//getMastercardFromFile(file);
-				importPatientsData(es, ps, null, file);
+				// todo for later: getting the encounter locations from the CSV file
+				Location nno = ls.getLocation("Neno District Hospital");
+				importPatientsData(es, ps, nno, file);
 			}
 		}
 		
@@ -172,17 +184,19 @@ public class ArtImporter {
 		p.setDateChanged(new Date(System.currentTimeMillis()));
 		p.setGender(mastercard.getHeaderData().getObservations().getSex());
 		
-		//Settping Identifiers
+		//Setting Identifiers
 		Set piSet = new HashSet();
 		PatientIdentifier pi1 = new PatientIdentifier();
 		pi1.setIdentifierType(Context.getPatientService().getPatientIdentifierType("ARV Number"));
 		pi1.setIdentifier("NNO" + System.currentTimeMillis());
+		pi1.setLocation(nno);
 		piSet.add(pi1);
 		
-		PatientIdentifier pi2 = new PatientIdentifier();
-		pi2.setIdentifierType(Context.getPatientService().getPatientIdentifierType("PART Number"));
-		pi2.setIdentifier(mastercard.getHeaderData().getObservations().getPartNos());
-		piSet.add(pi2);
+		// todo, 'uniquify' PART Number to avoid UniqueKeyViolation
+//		PatientIdentifier pi2 = new PatientIdentifier();
+//		pi2.setIdentifierType(Context.getPatientService().getPatientIdentifierType("PART Number"));
+//		pi2.setIdentifier(mastercard.getHeaderData().getObservations().getPartNos());
+//		piSet.add(pi2);
 		
 		p.setIdentifiers(piSet);
 		
