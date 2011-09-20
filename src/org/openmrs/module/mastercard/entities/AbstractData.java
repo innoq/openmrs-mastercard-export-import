@@ -13,7 +13,6 @@
  */
 package org.openmrs.module.mastercard.entities;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -267,10 +266,10 @@ public abstract class AbstractData {
 					obsDataBean.setDateOfHiVDiagnosis(Helper.getStringFromDate((o.getValueDatetime())));
 					break;
 				case ObservationDataBean.wgtConceptID:
-					obsDataBean.setWgt(numeric(o.getValueNumeric()));
+					obsDataBean.setWgt(o.getValueNumeric());
 					break;
 				case ObservationDataBean.hgtConceptID:
-					obsDataBean.setHgt(numeric(o.getValueNumeric()));
+					obsDataBean.setHgt(o.getValueNumeric());
 					break;
 				case ObservationDataBean.sideEffectsYesNoConceptID:
 					if (o.getValueNumeric() == null || o.getValueNumeric() == 0) {

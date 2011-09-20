@@ -235,4 +235,13 @@ public class Helper {
 	public static String getStringFromDate(Date date) {
 		return new SimpleDateFormat("dd MM yyyy").format(date);
 	}
+	
+	public static Double getDoubleFromString(String s) {
+		logger.info("Transforming String to Double:" + s);
+		
+		if ((s != null && !s.equals(Constants.NOT_AVAILABLE))) {
+			return new Double(s);
+		} else
+			return null;
+	}
 }

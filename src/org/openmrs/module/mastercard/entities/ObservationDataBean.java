@@ -670,29 +670,63 @@ public class ObservationDataBean {
 	/**
 	 * @return the hgt
 	 */
-	public String getHgt() {
-		return hgt;
+	public String getHgtAsString() {
+		if (hgt == null)
+			return Constants.NOT_AVAILABLE;
+		else
+			return hgt.toString();
 	}
 	
 	/**
 	 * @param hgt the hgt to set
 	 */
-	public void setHgt(String hgt) {
+	public void setHgt(Double hgt) {
 		this.hgt = hgt;
+	}
+	
+	/**
+	 * @param hgt the hgt to set
+	 */
+	public void setHgtAsString(String s) {
+		this.hgt = Helper.getDoubleFromString(s);
 	}
 	
 	/**
 	 * @return the wgt
 	 */
-	public String getWgt() {
+	public Double getWgt() {
 		return wgt;
+	}
+	
+	/**
+	 * @return the hgt
+	 */
+	public Double getHgt() {
+		return hgt;
+	}
+	
+	/**
+	 * @return the wgt
+	 */
+	public String getWgtAsString() {
+		if (wgt == null)
+			return Constants.NOT_AVAILABLE;
+		else
+			return wgt.toString();
 	}
 	
 	/**
 	 * @param wgt the wgt to set
 	 */
-	public void setWgt(String wgt) {
+	public void setWgt(Double wgt) {
 		this.wgt = wgt;
+	}
+	
+	/**
+	 * @param wgt the wgt to set
+	 */
+	public void setWgtAsString(String s) {
+		this.wgt = Helper.getDoubleFromString(s);
 	}
 	
 	/**
@@ -1088,9 +1122,9 @@ public class ObservationDataBean {
 	
 	private String vhwName = Constants.NOT_AVAILABLE;
 	
-	private String hgt = Constants.NOT_AVAILABLE;
+	private Double hgt = null;
 	
-	private String wgt = Constants.NOT_AVAILABLE;
+	private Double wgt = null;
 	
 	private String everArv = Constants.NOT_AVAILABLE;
 	

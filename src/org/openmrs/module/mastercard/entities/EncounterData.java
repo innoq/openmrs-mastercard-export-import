@@ -91,8 +91,8 @@ public class EncounterData extends AbstractData {
 		
 		return csv(loc, //0
 		    date, //1
-		    obsDataBean.getHgt(), //2 
-		    obsDataBean.getWgt(), //3
+		    obsDataBean.getHgtAsString(), //2 
+		    obsDataBean.getWgtAsString(), //3
 		    outcomeEnrollment, //4
 		    "outcome", //5
 		    //obsDataBean.getOutcome(),
@@ -135,8 +135,8 @@ public class EncounterData extends AbstractData {
 	private void handleLine(ObservationDataBean obsDataBean, String[] parseLine) {
 		locationOfEncounter = parseLine[0];
 		dateOfEncounter = parseLine[1];
-		obsDataBean.setHgt(parseLine[2]);
-		obsDataBean.setWgt(parseLine[3]);
+		obsDataBean.setHgtAsString(parseLine[2]);
+		obsDataBean.setWgtAsString(parseLine[3]);
 		
 		//line 4 ??
 		obsDataBean.setOutcome(parseLine[5]);

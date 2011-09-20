@@ -49,6 +49,7 @@ public class HeaderData extends AbstractData {
 		} else {
 			obsDataBean.setOutcome("Unknown");
 		}
+		
 		//TODO Mild: Handle Adresses in a better way!
 		//String addr = "";
 		//Set<PersonAddress> addresses = encounter.getPatient().getAddresses();
@@ -125,8 +126,8 @@ public class HeaderData extends AbstractData {
 	private void handleLine9(ObservationDataBean obsDataBean, String[] parseLine) {
 		
 		obsDataBean.setGuardianName(parseLine[1]);
-		obsDataBean.setHgt(parseLine[7]);
-		obsDataBean.setWgt(parseLine[9]);
+		obsDataBean.setHgtAsString(parseLine[7]);
+		obsDataBean.setWgtAsString(parseLine[9]);
 		obsDataBean.setEverArv(parseLine[11]);
 		obsDataBean.setAlt1stL(parseLine[13]);
 		obsDataBean.setAlt1stLDate(parseLine[14]);
@@ -253,9 +254,9 @@ public class HeaderData extends AbstractData {
 		r += csv("Phys. Address", obsDataBean.getAddr(), "", "", "", "", "CD4 date", obsDataBean.getCd4Date(), "", "",
 		    "Pregnant at initiation", obsDataBean.getPreg(), "1st Line", "d4T 3TC NVP", obsDataBean.getD4TDate());
 		r += Constants.NEWLINE;
-		r += csv("Guardian Name", obsDataBean.getGuardianName(), "", "", "", "", "Height", obsDataBean.getHgt(), "Weight",
-		    obsDataBean.getWgt(), "Ever taken ARVs", obsDataBean.getEverArv(), "Alt 1st Line", obsDataBean.getAlt1stL(),
-		    obsDataBean.getAlt1stLDate());
+		r += csv("Guardian Name", obsDataBean.getGuardianName(), "", "", "", "", "Height", obsDataBean.getHgtAsString(),
+		    "Weight", obsDataBean.getWgtAsString(), "Ever taken ARVs", obsDataBean.getEverArv(), "Alt 1st Line",
+		    obsDataBean.getAlt1stL(), obsDataBean.getAlt1stLDate());
 		r += Constants.NEWLINE;
 		r += csv("Agrees to FUP", obsDataBean.getFup(), "Guardian Relation", obsDataBean.getGrel(), "Guardian Phone",
 		    obsDataBean.getGphone(), "Age at init.", obsDataBean.getAgeInit(), "", "", "Last ARVs (drug, date)",

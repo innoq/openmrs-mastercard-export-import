@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,9 +20,11 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
+import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
@@ -32,8 +35,10 @@ import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.mastercard.exceptions.WrongFormatException;
 import org.openmrs.module.mastercard.entities.ArvMastercardBean;
+import org.openmrs.module.mastercard.entities.Constants;
 import org.openmrs.module.mastercard.entities.EncounterData;
 import org.openmrs.module.mastercard.entities.HeaderData;
+import org.openmrs.module.mastercard.entities.ObservationDataBean;
 
 public class ArtImporter {
 	
@@ -174,15 +179,10 @@ public class ArtImporter {
 	private void writeMastercardToDatabase(EncounterService es, PatientService ps, Location nno, ArvMastercardBean mastercard)
 	                                                                                                                          throws FileNotFoundException,
 	                                                                                                                          IOException {
-		Patient p = new Patient();
-		p.setBirthdate(mastercard.getHeaderData().getObservations().getDateOfBirth());
-		PersonName pName = new PersonName();
-		pName.setFamilyName(mastercard.getHeaderData().getObservations().getPatientFamilyName());
-		pName.setGivenName(mastercard.getHeaderData().getObservations().getPatientGivenName());
-		p.addName(pName);
+		List<EncounterType> artInitials = Arrays.asList(es.getEncounterType("ART_INITIAL"));
+		List<EncounterType> artFollowups = Arrays.asList(es.getEncounterType("ART_FOLLOWUP"));
 		
-		p.setDateChanged(new Date(System.currentTimeMillis()));
-		p.setGender(mastercard.getHeaderData().getObservations().getSex());
+		Patient p = new Patient();
 		
 		//Setting Identifiers
 		Set piSet = new HashSet();
@@ -193,16 +193,86 @@ public class ArtImporter {
 		piSet.add(pi1);
 		
 		// todo, 'uniquify' PART Number to avoid UniqueKeyViolation
-//		PatientIdentifier pi2 = new PatientIdentifier();
-//		pi2.setIdentifierType(Context.getPatientService().getPatientIdentifierType("PART Number"));
-//		pi2.setIdentifier(mastercard.getHeaderData().getObservations().getPartNos());
-//		piSet.add(pi2);
+		//		PatientIdentifier pi2 = new PatientIdentifier();
+		//		pi2.setIdentifierType(Context.getPatientService().getPatientIdentifierType("PART Number"));
+		//		pi2.setIdentifier(observationBean.getPartNos());
+		//		piSet.add(pi2);
+		
+		//similar todo: for "ARV number"??
+		//		PatientIdentifier pi3 = new PatientIdentifier();
+		//		pi3.setIdentifierType(Context.getPatientService().getPatientIdentifierType("ARV Number"));
+		//		pi3.setIdentifier(observationBean.getArtNos());
+		//		piSet.add(pi3);
 		
 		p.setIdentifiers(piSet);
 		
-		ps.createPatient(p);
-		//TODO mild finish method
+		//Setting header data
+		p.setBirthdate(mastercard.getHeaderData().getObservations().getDateOfBirth());
+		PersonName pName = new PersonName();
+		pName.setFamilyName(mastercard.getHeaderData().getObservations().getPatientFamilyName());
+		pName.setGivenName(mastercard.getHeaderData().getObservations().getPatientGivenName());
+		p.addName(pName);
 		
+		p.setDateChanged(new Date(System.currentTimeMillis()));
+		p.setGender(mastercard.getHeaderData().getObservations().getSex());
+		
+		ps.createPatient(p);
+		
+		//adding encounter data for header
+		Encounter encounter = new Encounter();
+		encounter.setPatient(p);
+		
+		//TODO cneumann Hier: artInitials.get(0) prüfen. Es ist ein Header-Element - ich versuche also aus der oben geholten Liste einen ArtInit Typ zu setzen - ohne Validierung etc.
+		moveMastercardDataToObs(mastercard.getHeaderData().getObservations(), encounter, artInitials.get(0));
+		es.createEncounter(encounter);
+		
+		EncounterData[] encounterDataArray = mastercard.getEncounterData();
+		
+		for (EncounterData encData : encounterDataArray) {
+			Encounter enc = new Encounter();
+			enc.setPatient(p);
+			
+			//TODO cneumann Hier: artInitials.get(0) prüfen. Es ist ein Header-Element - ich versuche also aus der oben geholten Liste einen ArtFollowUp-Typ zu setzen - ohne Validierung etc.
+			moveMastercardDataToObs(encData.getObservations(), encounter, artFollowups.get(0));
+			es.createEncounter(enc);
+		}
+	}
+	
+	private void addObservationToEncounterTextValue(Encounter encounter, Concept c, String s) {
+		if (s != null && !s.equals(Constants.NOT_AVAILABLE)) {
+			Obs obs = new Obs();
+			obs.setConcept(c);
+			obs.setValueText(s);
+			encounter.addObs(obs);
+		}
+	}
+	
+	private void addObservationToEncounterCodedValue(Encounter encounter, Concept c, String s) {
+		if (s != null && !s.equals(Constants.NOT_AVAILABLE)) {
+			Obs obs = new Obs();
+			obs.setConcept(c);
+			//TODO cneumann: needs implementation for example FUP concept Id etc.
+			logger.error("Implementation missing of addObservationToEncounterCodedValue()");
+			encounter.addObs(obs);
+		}
+	}
+	
+	private void addObservationToEncounterDateValue(Encounter encounter, Concept c, Date d) {
+		if (d != null) {
+			Obs obs = new Obs();
+			obs.setConcept(c);
+			obs.setValueDatetime(d);
+			encounter.addObs(obs);
+		}
+	}
+	
+	private void addObservationToEncounterDoubleValue(Encounter encounter, Concept c, Double d) {
+		if (d != null) {
+			Obs obs = new Obs();
+			obs.setConcept(c);
+			obs.setValueNumeric(d);
+			encounter.addObs(obs);
+		}
 	}
 	
 	/**
@@ -352,10 +422,138 @@ public class ArtImporter {
 		return patients;
 	}
 	
-	private SessionFactory sessionFactory() {
-		return null;
-		//		return ((HibernatePihMalawiQueryDao) Context.getRegisteredComponents(
-		//			HibernatePihMalawiQueryDao.class).get(0)).getSessionFactory();
+	protected void moveMastercardDataToObs(ObservationDataBean observationBean, Encounter encounter,
+	                                       EncounterType encounterType) {
+		
+		//TODO cneumann: hier haue ich den aktuellen TimeStamp rein - da mir nicht klar ist welches fachliche Datum passen könnte!
+		encounter.setEncounterDatetime(new Date(System.currentTimeMillis()));
+		encounter.setEncounterType(encounterType);
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.vhwProgramConceptID), observationBean.getVhwName());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.phoneNumberCountConceptID),
+		    observationBean.getPhone());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.alt1stLineArvsConceptID),
+		    observationBean.getAlt1stL());
+		
+		//TODO cneumann: open issue ex- and importing: ObservationDataBean.altConceptID
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.arvRegimenTypConceptID),
+		    observationBean.getArvRegimen());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.commentsAtConclusionOfExaminationConceptID),
+		    observationBean.getComment());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.dateAntiretroviralsStartedConceptID),
+		    observationBean.getAlt1stLDate());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.guardianFirstNameConceptID),
+		    observationBean.getGuardianFirstName());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.guardianLastNameConceptID),
+		    observationBean.getGuardianLastName());
+		
+		addObservationToEncounterCodedValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.fupConceptID), observationBean.getFup());
+		
+		addObservationToEncounterCodedValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.locationWhereTestTookPlaceConceptID),
+		    observationBean.getLocationWhereTestTookPlace());
+		
+		addObservationToEncounterDateValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.dateOfHivDiagnososConceptID),
+		    Helper.getDateFromString(observationBean.getDateOfHiVDiagnosis()));
+		
+		addObservationToEncounterDoubleValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.wgtConceptID), observationBean.getWgt());
+		
+		addObservationToEncounterDoubleValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.hgtConceptID), observationBean.getHgt());
+		
+		if (observationBean.getSideEffectsYesNo() != null && observationBean.getSideEffectsYesNo().equals("Yes")) {
+			addObservationToEncounterDoubleValue(encounter,
+			    Context.getConceptService().getConcept(ObservationDataBean.sideEffectsYesNoConceptID), new Double(1.0));
+		}
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.sideEffectsCommentsConceptID),
+		    observationBean.getSideEffectsComments());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.sideEffectsCommentsConceptID),
+		    observationBean.getSideEffectsComments());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.sideEffectsOfTreatmentConceptID),
+		    observationBean.getSideEffectsOfTreatment());
+		
+		addObservationToEncounterCodedValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.stageConceptID), observationBean.getStage());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.pregConceptID), observationBean.getPreg());
+		
+		addObservationToEncounterCodedValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.tbStatusConceptID), observationBean.getTbStat());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.typeConceptID), observationBean.getType());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.cd4CountConceptID), observationBean.getCd4());
+		
+		addObservationToEncounterDateValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.cd4DateConceptID),
+		    Helper.getDateFromString(observationBean.getCd4Date()));
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.cd4PercentageConceptID),
+		    observationBean.getCd4Percentage());
+		
+		addObservationToEncounterDateValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.cd4PercentageDateTimeConceptID),
+		    Helper.getDateFromString(observationBean.getCd4PercentageDateTime()));
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.dosesMissedConceptId),
+		    observationBean.getDosesMissed());
+		
+		addObservationToEncounterTextValue(encounter, Context.getConceptService()
+		        .getConcept(ObservationDataBean.ksConceptID), observationBean.getKs());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.statusOfArvRegimen), observationBean.getArvRegimen());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.arvDrugsReceivedConceptID),
+		    observationBean.getArvDrugsReceived());
+		
+		addObservationToEncounterDateValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.nextAppointmentConceptID),
+		    Helper.getDateFromString(observationBean.getNextAppointment()));
+		
+		addObservationToEncounterDoubleValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.noOfArvGivenConceptID),
+		    observationBean.getNoOfArvGiven());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.outcomeConceptID), observationBean.getOutcome());
+		
+		addObservationToEncounterTextValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.cptGivenConceptID), observationBean.getCp4tGiven());
+		
+		addObservationToEncounterDateValue(encounter,
+		    Context.getConceptService().getConcept(ObservationDataBean.cptDateConceptID),
+		    Helper.getDateFromString(observationBean.getCp4TDate()));
 	}
 	
 }
