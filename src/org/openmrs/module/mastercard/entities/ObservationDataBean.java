@@ -688,7 +688,7 @@ public class ObservationDataBean {
 	 * @param hgt the hgt to set
 	 */
 	public void setHgtAsString(String s) {
-		this.hgt = Helper.getDoubleFromString(s);
+		this.hgt = Helper.getNumericFromString(s);
 	}
 	
 	/**
@@ -726,7 +726,7 @@ public class ObservationDataBean {
 	 * @param wgt the wgt to set
 	 */
 	public void setWgtAsString(String s) {
-		this.wgt = Helper.getDoubleFromString(s);
+		this.wgt = Helper.getNumericFromString(s);
 	}
 	
 	/**

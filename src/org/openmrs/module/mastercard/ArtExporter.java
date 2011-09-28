@@ -1,7 +1,6 @@
 package org.openmrs.module.mastercard;
 
 import org.apache.log4j.Logger;
-import org.hibernate.SessionFactory;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;

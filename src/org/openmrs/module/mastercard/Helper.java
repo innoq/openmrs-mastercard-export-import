@@ -243,17 +243,6 @@ public class Helper {
 	public static String getStringFromDate(Date date) {
 		return new SimpleDateFormat("dd MM yyyy").format(date);
 	}
-<<<<<<< HEAD
-	
-	public static Double getDoubleFromString(String s) {
-		logger.info("Transforming String to Double:" + s);
-		
-		if ((s != null && !s.equals(Constants.NOT_AVAILABLE))) {
-			return new Double(s);
-		} else
-			return null;
-	}
-=======
 
     public static Double getNumericFromString(String value) {
     	try {
@@ -262,5 +251,5 @@ public class Helper {
     		return null;
     	}
     }
->>>>>>> 2841ac09e766dfc4b3194b3412f67790fb1c7646
+
 }
