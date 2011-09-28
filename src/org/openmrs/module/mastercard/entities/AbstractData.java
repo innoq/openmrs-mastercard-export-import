@@ -107,6 +107,16 @@ public abstract class AbstractData {
 		return key;
 	}
 	
+	public String reverseMap(String value) {
+		// hm, good that cpu power is cheap...
+		for (String key : mapper.keySet()) {
+			if (mapper.get(key).equals(value)) {
+				return key;
+			}
+		}
+		return null;
+	}
+	
 	protected String valueCoded(ConceptName valueCodedName) {
 		return valueCodedName == null ? "" : valueCodedName.getName();
 	}

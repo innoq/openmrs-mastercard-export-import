@@ -1,5 +1,16 @@
 package org.openmrs.module.mastercard;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
@@ -14,9 +25,6 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.mastercard.entities.Constants;
-
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 public class Helper {
 	
@@ -226,7 +234,7 @@ public class Helper {
 			Calendar calendar = new GregorianCalendar();
 			calendar.set(year, month, day);
 			
-			//TODO mild: check on calendar coirrectness
+			//TODO mild: check on calendar correctness
 			return calendar.getTime();
 		} else
 			return null;
@@ -235,4 +243,12 @@ public class Helper {
 	public static String getStringFromDate(Date date) {
 		return new SimpleDateFormat("dd MM yyyy").format(date);
 	}
+
+    public static Double getNumericFromString(String value) {
+    	try {
+    		return new Double(value);
+    	} catch (NumberFormatException nfe) {
+    		return null;
+    	}
+    }
 }
