@@ -218,6 +218,7 @@ public class ArtImporter {
 		
 		ps.createPatient(p);
 		
+<<<<<<< HEAD
 		//adding encounter data for header
 		Encounter encounter = new Encounter();
 		encounter.setPatient(p);
@@ -272,9 +273,52 @@ public class ArtImporter {
 			obs.setConcept(c);
 			obs.setValueNumeric(d);
 			encounter.addObs(obs);
+=======
+		for (EncounterData ed : mastercard.getEncounterData()) {
+			Encounter e = new Encounter();
+			e.setEncounterType(es.getEncounterType("ART_FOLLOWUP"));
+			e.setEncounterDatetime(Helper.getDateFromString(ed.getDateOfEncounter()));
+			e.setProvider(Context.getPersonService().getPerson(16576)); // always use provider unknown
+			e.setLocation(Context.getLocationService().getLocation(ed.reverseMap(ed.getLocationOfEncounter())));
+			e.setPatient(p);
+			
+			// maybe we can iterate over a collection of obs instead of hard-coding them?
+			// todo, check for completeness
+			e.addObs(obsFromDataBean(ed.getObservations().getNextAppointment(), ObservationDataBean.nextAppointmentConceptID));
+			e.addObs(obsFromDataBean(ed.getObservations().getHgt(), ObservationDataBean.hgtConceptID));
+			e.addObs(obsFromDataBean(ed.getObservations().getWgt(), ObservationDataBean.wgtConceptID));
+			e.addObs(obsFromDataBean(ed.getObservations().getDosesMissed(), ObservationDataBean.dosesMissedConceptId));
+			e.addObs(obsFromDataBean(ed.getObservations().getPillCountAsString(), ObservationDataBean.pillCountConceptID));
+			e.addObs(obsFromDataBean(ed.getObservations().getSideEffects(), ObservationDataBean.sideEffectsStringConceptID));
+			e.addObs(obsFromDataBean(ed.getObservations().getTbStat(), ObservationDataBean.tbStatusConceptID));
+			e.addObs(obsFromDataBean(ed.getObservations().getArvRegimen(), ObservationDataBean.arvRegimenTypConceptID));
+			e.addObs(obsFromDataBean(ed.getObservations().getCp4tGivenAsString(), ObservationDataBean.cptGivenConceptID));
+			e.addObs(obsFromDataBean(ed.getObservations().getComment(), ObservationDataBean.commentsAtConclusionOfExaminationConceptID));
+			
+			es.saveEncounter(e);
+>>>>>>> 2841ac09e766dfc4b3194b3412f67790fb1c7646
 		}
 	}
-	
+		
+	private Obs obsFromDataBean(String value, int conceptId) {
+		Obs o = new Obs();
+		o.setConcept(Context.getConceptService().getConcept(conceptId));
+
+		switch (conceptId) {
+			case ObservationDataBean.nextAppointmentConceptID:
+				o.setValueDatetime(Helper.getDateFromString(value));
+				break;
+			case ObservationDataBean.hgtConceptID:
+				o.setValueNumeric(Helper.getNumericFromString(value));
+				break;
+			case ObservationDataBean.wgtConceptID:
+				o.setValueNumeric(Helper.getNumericFromString(value));
+				break;
+			// todo, finish the rest
+		}
+		return o;
+    }
+
 	/**
 	 * Auto generated method comment
 	 * 

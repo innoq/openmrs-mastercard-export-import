@@ -13,6 +13,8 @@
  */
 package org.openmrs.module.mastercard.entities;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.openmrs.Encounter;
 import org.openmrs.mastercard.exceptions.WrongFormatException;

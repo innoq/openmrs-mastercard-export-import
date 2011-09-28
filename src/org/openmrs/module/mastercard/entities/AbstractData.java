@@ -106,6 +106,16 @@ public abstract class AbstractData {
 		return key;
 	}
 	
+	public String reverseMap(String value) {
+		// hm, good that cpu power is cheap...
+		for (String key : mapper.keySet()) {
+			if (mapper.get(key).equals(value)) {
+				return key;
+			}
+		}
+		return null;
+	}
+	
 	protected String valueCoded(ConceptName valueCodedName) {
 		return valueCodedName == null ? "" : valueCodedName.getName();
 	}
@@ -204,8 +214,8 @@ public abstract class AbstractData {
 		// ART no Pre-ART no Pre-ART start date OpenMRS ID VHW
 		obsDataBean.setArtNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
 		    Context.getPatientService().getPatientIdentifierType("ARV Number"))));
-		obsDataBean.setPartNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
-		    Context.getPatientService().getPatientIdentifierType("PART Number"))));
+//		obsDataBean.setPartNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
+//		    Context.getPatientService().getPatientIdentifierType("PART Number"))));
 		
 		//obsDataBean.setPartStart();
 		obsDataBean.setPatientId(encounter.getPatientId());
