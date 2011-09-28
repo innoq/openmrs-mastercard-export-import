@@ -205,8 +205,8 @@ public abstract class AbstractData {
 		// ART no Pre-ART no Pre-ART start date OpenMRS ID VHW
 		obsDataBean.setArtNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
 		    Context.getPatientService().getPatientIdentifierType("ARV Number"))));
-		obsDataBean.setPartNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
-		    Context.getPatientService().getPatientIdentifierType("PART Number"))));
+//		obsDataBean.setPartNos(identifierStrings(encounter.getPatient().getPatientIdentifiers(
+//		    Context.getPatientService().getPatientIdentifierType("PART Number"))));
 		
 		//obsDataBean.setPartStart();
 		obsDataBean.setPatientId(encounter.getPatientId());
