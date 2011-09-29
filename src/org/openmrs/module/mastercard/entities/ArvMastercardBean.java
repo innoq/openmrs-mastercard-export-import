@@ -20,9 +20,9 @@ public class ArvMastercardBean {
 	
 	private String identifier = null;
 	
-	HeaderData headerData = null;
+	InitialEncounter headerData = null;
 	
-	EncounterData[] encounterData = null;
+	FollowerEncounter[] encounterData = null;
 	
 	/**
 	 * @return the identifier
@@ -41,28 +41,28 @@ public class ArvMastercardBean {
 	/**
 	 * @return the headerData
 	 */
-	public HeaderData getHeaderData() {
+	public InitialEncounter getHeaderData() {
 		return headerData;
 	}
 	
 	/**
 	 * @param headerData the headerData to set
 	 */
-	public void setHeaderData(HeaderData headerData) {
+	public void setHeaderData(InitialEncounter headerData) {
 		this.headerData = headerData;
 	}
 	
 	/**
 	 * @return the encounterData
 	 */
-	public EncounterData[] getEncounterData() {
+	public FollowerEncounter[] getEncounterData() {
 		return encounterData;
 	}
 	
 	/**
 	 * @param encounterData the encounterData to set
 	 */
-	public void setEncounterData(EncounterData[] encounterData) {
+	public void setEncounterData(FollowerEncounter[] encounterData) {
 		this.encounterData = encounterData;
 	}
 }

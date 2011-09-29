@@ -9,8 +9,8 @@ import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.mastercard.exceptions.WrongFormatException;
 import org.openmrs.module.mastercard.entities.ArvMastercardBean;
-import org.openmrs.module.mastercard.entities.EncounterData;
-import org.openmrs.module.mastercard.entities.HeaderData;
+import org.openmrs.module.mastercard.entities.FollowerEncounter;
+import org.openmrs.module.mastercard.entities.InitialEncounter;
 
 import java.io.*;
 import java.util.*;
@@ -132,8 +132,8 @@ public class ArtImporter {
 				i++;
 			}
 			
-			HeaderData headerBean = parseArrayForHeaderData(headerStringArray);
-			EncounterData[] encounterBeanArray = parseArrayForEncounterData(encounterStringArray);
+			InitialEncounter headerBean = parseArrayForHeaderData(headerStringArray);
+			FollowerEncounter[] encounterBeanArray = parseArrayForEncounterData(encounterStringArray);
 			
 			masterCardBean = new ArvMastercardBean();
 			masterCardBean.setHeaderData(headerBean);
@@ -170,9 +170,9 @@ public class ArtImporter {
 	 * @return
 	 * @throws WrongFormatException
 	 */
-	protected EncounterData[] parseArrayForEncounterData(String[] encounterStringArray) throws WrongFormatException {
+	protected FollowerEncounter[] parseArrayForEncounterData(String[] encounterStringArray) throws WrongFormatException {
 		
-		EncounterData[] encounterDataArray = new EncounterData[encounterStringArray.length - 1];
+		FollowerEncounter[] encounterDataArray = new FollowerEncounter[encounterStringArray.length - 1];
 		
 		for (int i = 0; i < encounterStringArray.length; i++) {
 			
@@ -181,7 +181,7 @@ public class ArtImporter {
 				throw new WrongFormatException("Header Line 0 expected to be Encounter Data Header /'/'");
 			
 			if (i > 0) {
-				EncounterData encounterData = (EncounterData) new EncounterData(encounterStringArray[i]);
+				FollowerEncounter encounterData = (FollowerEncounter) new FollowerEncounter(encounterStringArray[i]);
 				encounterDataArray[i - 1] = encounterData;
 			}
 		}
@@ -195,7 +195,7 @@ public class ArtImporter {
 	 * @return
 	 * @throws WrongFormatException
 	 */
-	protected HeaderData parseArrayForHeaderData(String[] headerStringArray) throws WrongFormatException {
+	protected InitialEncounter parseArrayForHeaderData(String[] headerStringArray) throws WrongFormatException {
 		
 		//To keep signatures symetric and allow abstraction we assemble the different
 		// mastercard-headerlines to a single string and disassemble those in HeaderData.demarshalData()
@@ -208,7 +208,7 @@ public class ArtImporter {
 		}
 		
 		//That is what we want to call with a single string parameter, see HeaderData.demarshalData()
-		HeaderData headerData = (HeaderData) new HeaderData(assembledHelperString);
+		InitialEncounter headerData = (InitialEncounter) new InitialEncounter(assembledHelperString);
 		return headerData;
 	}
 	

@@ -19,9 +19,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.mastercard.exceptions.WrongFormatException;
-import org.openmrs.module.mastercard.entities.EncounterData;
-import org.openmrs.module.mastercard.entities.HeaderData;
-import org.openmrs.module.mastercard.entities.ObservationDataBean;
+import org.openmrs.module.mastercard.entities.FollowerEncounter;
+import org.openmrs.module.mastercard.entities.InitialEncounter;
+import org.openmrs.module.mastercard.entities.GeneralEncounterDataContainer;
 
 /**
  *
@@ -77,9 +77,9 @@ public class ArtImporterTest {
 	@Test
 	public void testParseArrayForHeaderData1() throws WrongFormatException {
 		ArtImporter artImp = new ArtImporter();
-		HeaderData headerData = artImp.parseArrayForHeaderData(stringArray1);
+		InitialEncounter headerData = artImp.parseArrayForHeaderData(stringArray1);
 		
-		ObservationDataBean obs = headerData.getObservations();
+		GeneralEncounterDataContainer obs = headerData.getObservations();
 		assertEquals("ON ANTIRETROVIRALS", obs.getOutcome());
 		assertEquals("QECH", obs.getLocationWhereTestTookPlace());
 		assertEquals("YES", obs.getFup());
@@ -100,12 +100,12 @@ public class ArtImporterTest {
 	@Test
 	public void testParseArrayForEncounterData() throws WrongFormatException {
 		ArtImporter artImp = new ArtImporter();
-		EncounterData[] encounterDataArray = artImp.parseArrayForEncounterData(stringArray2);
+		FollowerEncounter[] encounterDataArray = artImp.parseArrayForEncounterData(stringArray2);
 		
-		EncounterData encounterData = encounterDataArray[0];
+		FollowerEncounter encounterData = encounterDataArray[0];
 		//"Visit loc;Vist Date;Hgt;Wt;Outcome Enrollment;Adverse Outcome;Outcome date;Regimen;Side Effects;TB status;current Pill count;Doses missed;ARVs given #;To;CPT #;Comment;Next appointment;Unknown Obs;";
 		//"NNO;29 Jun 2006;-;17.8;-;outcome;-;arvReg;-;-;-;-;60.0;60.0;-;-;-;-;";
-		ObservationDataBean obs = encounterData.getObservations();
+		GeneralEncounterDataContainer obs = encounterData.getObservations();
 		assertEquals("12 May 2006", encounterData.getDateOfEncounter());
 		assertEquals("-", obs.getHgt());
 		assertEquals("59.0", obs.getWgt());

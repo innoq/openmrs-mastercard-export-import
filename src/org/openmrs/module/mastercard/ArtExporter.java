@@ -11,8 +11,8 @@ import org.openmrs.api.EncounterService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.mastercard.entities.ArvMastercardBean;
-import org.openmrs.module.mastercard.entities.EncounterData;
-import org.openmrs.module.mastercard.entities.HeaderData;
+import org.openmrs.module.mastercard.entities.FollowerEncounter;
+import org.openmrs.module.mastercard.entities.InitialEncounter;
 
 import java.io.*;
 import java.util.*;
@@ -118,7 +118,7 @@ public class ArtExporter {
 			logger.info("Filing mastercard for Patient with id: " + p.getId());
 			List<Encounter> el = es.getEncounters(p, nno, null, null, null, artInitials, null, false);
 			
-			HeaderData headerData = null;
+			InitialEncounter headerData = null;
 			if (el.size() == 0) {
 				// missing initial
 				logger.warn("  Missing initial, trying to use another encounter");
@@ -126,12 +126,12 @@ public class ArtExporter {
 				
 				if (anyEncounter.size() > 0) {
 					logger.info("    Going to write exportInitial to BufferedWriter");
-					headerData = new HeaderData(anyEncounter.get(0));
+					headerData = new InitialEncounter(anyEncounter.get(0));
 				}
 			} else {
 				// take last initial (assuming list is ordered by date of entry)
 				logger.info("  Last initial encounter");
-				headerData = new HeaderData(el.get(el.size() - 1));
+				headerData = new InitialEncounter(el.get(el.size() - 1));
 			}
 			if (headerData == null) {
 				logger.error("found no Header Data for Patient with ID: " + p.getPatientId());
@@ -144,10 +144,10 @@ public class ArtExporter {
 			
 			if (el.size() != 0) {
 				logger.info("  Initializing Arrayof encounters. # of encounters: " + el.size());
-				EncounterData[] encounterDataArray = new EncounterData[el.size()];
+				FollowerEncounter[] encounterDataArray = new FollowerEncounter[el.size()];
 				int i = 0;
 				for (Encounter e : el) {
-					encounterDataArray[i] = new EncounterData(e);
+					encounterDataArray[i] = new FollowerEncounter(e);
 					i++;
 				}
 				mastercard.setEncounterData(encounterDataArray);
@@ -184,10 +184,10 @@ public class ArtExporter {
 			w.newLine();
 			
 			//writing encounter header to csv
-			w.write(EncounterData.getHeaderSerialized());
+			w.write(FollowerEncounter.getHeaderSerialized());
 			w.newLine();
 			
-			EncounterData[] encounterDataArray = mastercard.getEncounterData();
+			FollowerEncounter[] encounterDataArray = mastercard.getEncounterData();
 			if (encounterDataArray != null) {
 				logger.info("Iterating through " + encounterDataArray.length + " encounters");
 				for (int t = 0; t < encounterDataArray.length - 1; t++) {
