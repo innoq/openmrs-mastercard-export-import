@@ -232,11 +232,14 @@ public class ArtExporter {
 	 */
 	private List<Patient> getPatientArrayFromDB(PatientService ps, List<PatientIdentifierType> identifierTypes) {
 		List<Patient> patients = new ArrayList<Patient>();
-		for (int i = 1; i < 5; i++) {
+		/*for (int i = 1; i < 5; i++) {
 			patients.addAll(ps.getPatients(null, "NNO " + i, identifierTypes, true));
 			//patients.addAll(ps.getAllPatients(false));
 			logger.info("added patients - Iteration: " + i);
-		}
+		}*/
+		
+		patients.addAll(ps.getPatients(null, null, identifierTypes, true));
+		
 		// as substitute for aboves loop
 		//patients.addAll(ps.getAllPatients(false));
 		logger.info("added patients: " + patients.size());
