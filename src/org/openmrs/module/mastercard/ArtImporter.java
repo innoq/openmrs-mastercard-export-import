@@ -1,19 +1,41 @@
 package org.openmrs.module.mastercard;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
 import org.openmrs.Location;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
+import org.openmrs.PatientIdentifierType;
 import org.openmrs.PersonName;
 import org.openmrs.api.EncounterService;
+import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.mastercard.exceptions.WrongFormatException;
 import org.openmrs.module.mastercard.entities.ArvMastercardBean;
 import org.openmrs.module.mastercard.entities.FollowerEncounter;
 import org.openmrs.module.mastercard.entities.InitialEncounter;
-
-import java.io.*;
-import java.util.*;
+import org.openmrs.module.mastercard.entities.GeneralEncounterDataContainer;
 
 public class ArtImporter {
 	
@@ -146,22 +168,78 @@ public class ArtImporter {
 		return masterCardBean;
 	}
 	
-	private void writeMastercardToDatabase(EncounterService es, PatientService ps, Location nno, ArvMastercardBean mastercard)
-	                                                                                                                          throws FileNotFoundException,
-	                                                                                                                          IOException {
-		Patient p = new Patient();
-		p.setBirthdate(mastercard.getHeaderData().getObservations().getDateOfBirth());
-		PersonName pName = new PersonName();
-		pName.setFamilyName(mastercard.getHeaderData().getObservations().getPatientFamilyName());
-		pName.setGivenName(mastercard.getHeaderData().getObservations().getPatientGivenName());
-		p.addName(pName);
-		p.setDateChanged(new Date(System.currentTimeMillis()));
-		p.setGender(mastercard.getHeaderData().getObservations().getSex());
-		
-		ps.createPatient(p);
-		//TODO mild finish method
-		
+	Patient p = new Patient();
+	p.setBirthdate(mastercard.getHeaderData().getObservations().getDateOfBirth());
+	PersonName pName = new PersonName();
+	pName.setFamilyName(mastercard.getHeaderData().getObservations().getPatientFamilyName());
+	pName.setGivenName(mastercard.getHeaderData().getObservations().getPatientGivenName());
+	p.addName(pName);
+
+	p.setDateChanged(new Date(System.currentTimeMillis()));
+	p.setGender(mastercard.getHeaderData().getObservations().getSex());
+
+	//Setting Identifiers
+	Set piSet = new HashSet();
+	PatientIdentifier pi1 = new PatientIdentifier();
+	pi1.setIdentifierType(Context.getPatientService().getPatientIdentifierType("ARV Number"));
+	pi1.setIdentifier("NNO" + System.currentTimeMillis());
+	pi1.setLocation(nno);
+	piSet.add(pi1);
+
+	// todo, 'uniquify' PART Number to avoid UniqueKeyViolation
+	// PatientIdentifier pi2 = new PatientIdentifier();
+	// pi2.setIdentifierType(Context.getPatientService().getPatientIdentifierType("PART Number"));
+	// pi2.setIdentifier(mastercard.getHeaderData().getObservations().getPartNos());
+	// piSet.add(pi2);
+
+	p.setIdentifiers(piSet);
+
+	ps.createPatient(p);
+	//TODO mild finish method
+
+	for (EncounterData ed : mastercard.getEncounterData()) {
+	Encounter e = new Encounter();
+	e.setEncounterType(es.getEncounterType("ART_FOLLOWUP"));
+	e.setEncounterDatetime(Helper.getDateFromString(ed.getDateOfEncounter()));
+	e.setProvider(Context.getPersonService().getPerson(16576)); // always use provider unknown
+	e.setLocation(Context.getLocationService().getLocation(ed.reverseMap(ed.getLocationOfEncounter())));
+	e.setPatient(p);
+
+	// maybe we can iterate over a collection of obs instead of hard-coding them?
+	// todo, check for completeness
+	e.addObs(obsFromDataBean(ed.getObservations().getNextAppointment(), ObservationDataBean.nextAppointmentConceptID));
+	e.addObs(obsFromDataBean(ed.getObservations().getHgt(), ObservationDataBean.hgtConceptID));
+	e.addObs(obsFromDataBean(ed.getObservations().getWgt(), ObservationDataBean.wgtConceptID));
+	e.addObs(obsFromDataBean(ed.getObservations().getDosesMissed(), ObservationDataBean.dosesMissedConceptId));
+	e.addObs(obsFromDataBean(ed.getObservations().getPillCountAsString(), ObservationDataBean.pillCountConceptID));
+	e.addObs(obsFromDataBean(ed.getObservations().getSideEffects(), ObservationDataBean.sideEffectsStringConceptID));
+	e.addObs(obsFromDataBean(ed.getObservations().getTbStat(), ObservationDataBean.tbStatusConceptID));
+	e.addObs(obsFromDataBean(ed.getObservations().getArvRegimen(), ObservationDataBean.arvRegimenTypConceptID));
+	e.addObs(obsFromDataBean(ed.getObservations().getCp4tGivenAsString(), ObservationDataBean.cptGivenConceptID));
+	e.addObs(obsFromDataBean(ed.getObservations().getComment(), ObservationDataBean.commentsAtConclusionOfExaminationConceptID));
+
+	es.saveEncounter(e);
 	}
+	}
+
+	private Obs obsFromDataBean(String value, int conceptId) {
+	Obs o = new Obs();
+	o.setConcept(Context.getConceptService().getConcept(conceptId));
+
+	switch (conceptId) {
+	case ObservationDataBean.nextAppointmentConceptID:
+	o.setValueDatetime(Helper.getDateFromString(value));
+	break;
+	case ObservationDataBean.hgtConceptID:
+	o.setValueNumeric(Helper.getNumericFromString(value));
+	break;
+	case ObservationDataBean.wgtConceptID:
+	o.setValueNumeric(Helper.getNumericFromString(value));
+	break;
+	// todo, finish the rest
+	}
+	return o;
+	    }
 	
 	/**
 	 * Auto generated method comment
