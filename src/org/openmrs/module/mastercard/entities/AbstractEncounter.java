@@ -141,7 +141,6 @@ public abstract class AbstractEncounter {
 			if (!pp.isVoided()) {
 				for (PatientState ps : pp.getStates()) {
 					if (!ps.isVoided()) {
-						//TODO cneumann: sDate == null bei Encounter 168129 vomn Patient NNO 1648 mit ID 27102
 						Date sDate = ps.getStartDate();
 						if (sDate != null) {
 							sortedStates.put(sDate, ps);

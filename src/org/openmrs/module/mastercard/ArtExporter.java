@@ -238,18 +238,19 @@ public class ArtExporter {
 			logger.info("added patients - Iteration: " + i);
 		}*/
 		
-		patients.addAll(ps.getPatients(null, null, identifierTypes, true));
+		return Arrays.asList(ps.getPatient(27102));
+//		patients.addAll(ps.getPatients(null, null, identifierTypes, true));
 		
 		// as substitute for aboves loop
 		//patients.addAll(ps.getAllPatients(false));
-		logger.info("added patients: " + patients.size());
+//		logger.info("added patients: " + patients.size());
 		// patients.addAll(ps.getPatients(null, "NNO 1", identifierTypes,
 		// true));
 		// doesn't work ???
 		// List<Patient> patients = ps.getPatients(null, "NNO%",
 		// Arrays.asList(ps.getPatientIdentifierTypeByName("ARV Number"))),
 		// false);
-		return patients;
+//		return patients;
 	}
 	
 }
