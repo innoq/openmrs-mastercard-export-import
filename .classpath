@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="web/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/1.7.x"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openmrs-1.7.x"/>
+	<classpathentry kind="lib" path="lib/opencsv-2.2.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

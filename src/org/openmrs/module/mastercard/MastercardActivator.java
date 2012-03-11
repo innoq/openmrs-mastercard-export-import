@@ -31,7 +31,7 @@ public class MastercardActivator implements Activator {
 	 * @see org.openmrs.module.Activator#startup()
 	 */
 	public void startup() {
-		log.info("Starting Html Form Program Enrollment Module...");
+		log.info("Starting Mastercard Module...");
 	}
 	
 	public void shutdown() {
