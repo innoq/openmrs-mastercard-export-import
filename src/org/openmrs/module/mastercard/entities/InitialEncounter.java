@@ -205,8 +205,7 @@ public class InitialEncounter extends AbstractEncounter {
 	 */
 	private void handleLine3(GeneralEncounterDataContainer obsDataBean, String[] parseLine) {
 		obsDataBean.setArtNos(parseLine[1]);
-		//TODO cneumann what to do with OpenMRS-ID?
-		
+		obsDataBean.setOpenMrsId(parseLine[3]);
 	}
 	
 	/**
@@ -249,7 +248,7 @@ public class InitialEncounter extends AbstractEncounter {
 		r += Constants.NEWLINE;
 		r += csv("Sex", obsDataBean.getSex(), "DOB", obsDataBean.getDateOfBirthAsString(), "Patient phone",
 		    obsDataBean.getPhone(), "CD4 count", obsDataBean.getCd4(), "%", obsDataBean.getCd4Percentage(), "KS",
-		    obsDataBean.getKs(), "ART Regimen", "", "Start date", obsDataBean.getArvDrugsReceived()); //TODO cneumann: check on getArvDrugsReceived
+		    obsDataBean.getKs(), "ART Regimen", "", "Start date", obsDataBean.getArvDrugsReceived()); 
 		r += Constants.NEWLINE;
 		r += csv("Phys. Address", obsDataBean.getAddr(), "", "", "", "", "CD4 date", obsDataBean.getCd4Date(), "", "",
 		    "Pregnant at initiation", obsDataBean.getPreg(), "1st Line", "d4T 3TC NVP", obsDataBean.getD4TDate());

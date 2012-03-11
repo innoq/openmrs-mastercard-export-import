@@ -1155,5 +1155,321 @@ public class GeneralEncounterDataContainer {
 	private String sideEffectsOfTreatment = Constants.NOT_AVAILABLE;
 	
 	private String unknownObs = Constants.NOT_AVAILABLE;
+
+	private String openMrsId;
+
+    public void setOpenMrsId(String openMrsId) {
+    	this.openMrsId = openMrsId;
+    }
+
+	
+    public static Logger getLogger() {
+    	return logger;
+    }
+
+	
+    public static int getAltconceptid() {
+    	return altConceptID;
+    }
+
+	
+    public static int getAlt1stlinearvsconceptid() {
+    	return alt1stLineArvsConceptID;
+    }
+
+	
+    public static int getArvregimentypconceptid() {
+    	return arvRegimenTypConceptID;
+    }
+
+	
+    public static int getCd4countconceptid() {
+    	return cd4CountConceptID;
+    }
+
+	
+    public static int getCd4dateconceptid() {
+    	return cd4DateConceptID;
+    }
+
+	
+    public static int getCd4percentageconceptid() {
+    	return cd4PercentageConceptID;
+    }
+
+	
+    public static int getCd4percentagedatetimeconceptid() {
+    	return cd4PercentageDateTimeConceptID;
+    }
+
+	
+    public static int getCommentsatconclusionofexaminationconceptid() {
+    	return commentsAtConclusionOfExaminationConceptID;
+    }
+
+	
+    public static int getCptgivenconceptid() {
+    	return cptGivenConceptID;
+    }
+
+	
+    public static int getCptdateconceptid() {
+    	return cptDateConceptID;
+    }
+
+	
+    public static int getCd4datetimeconceptid() {
+    	return cd4DateTimeConceptID;
+    }
+
+	
+    public static int getDateofhivdiagnososconceptid() {
+    	return dateOfHivDiagnososConceptID;
+    }
+
+	
+    public static int getDosesmissedconceptid() {
+    	return dosesMissedConceptId;
+    }
+
+	
+    public static int getDateantiretroviralsstartedconceptid() {
+    	return dateAntiretroviralsStartedConceptID;
+    }
+
+	
+    public static int getDateartlasttakenconceptid() {
+    	return dateArtLastTakenConceptID;
+    }
+
+	
+    public static int getDateofcd4countconceptid() {
+    	return dateofCd4CountConceptID;
+    }
+
+	
+    public static int getFupconceptid() {
+    	return fupConceptID;
+    }
+
+	
+    public static int getGuardianfirstnameconceptid() {
+    	return guardianFirstNameConceptID;
+    }
+
+	
+    public static int getGuardianlastnameconceptid() {
+    	return guardianLastNameConceptID;
+    }
+
+	
+    public static int getHgtconceptid() {
+    	return hgtConceptID;
+    }
+
+	
+    public static int getKsconceptid() {
+    	return ksConceptID;
+    }
+
+	
+    public static int getLocationwheretesttookplaceconceptid() {
+    	return locationWhereTestTookPlaceConceptID;
+    }
+
+	
+    public static int getNoofarvgivenconceptid() {
+    	return noOfArvGivenConceptID;
+    }
+
+	
+    public static int getNewregimenconceptid() {
+    	return newRegimenConceptID;
+    }
+
+	
+    public static int getNextappointmentconceptid() {
+    	return nextAppointmentConceptID;
+    }
+
+	
+    public static int getOutcomeconceptid() {
+    	return outcomeConceptID;
+    }
+
+	
+    public static int getPhonenumbercountconceptid() {
+    	return phoneNumberCountConceptID;
+    }
+
+	
+    public static int getPhonetypecountconceptid() {
+    	return phoneTypeCountConceptID;
+    }
+
+	
+    public static int getPillcountconceptid() {
+    	return pillCountConceptID;
+    }
+
+	
+    public static int getPregconceptid() {
+    	return pregConceptID;
+    }
+
+	
+    public static int getStatusofarvregimen() {
+    	return statusOfArvRegimen;
+    }
+
+	
+    public static int getArvdrugsreceivedconceptid() {
+    	return arvDrugsReceivedConceptID;
+    }
+
+	
+    public static int getSexconceptid() {
+    	return sexConceptID;
+    }
+
+	
+    public static int getSideeffectscommentsconceptid() {
+    	return sideEffectsCommentsConceptID;
+    }
+
+	
+    public static int getSideeffectsoftreatmentconceptid() {
+    	return sideEffectsOfTreatmentConceptID;
+    }
+
+	
+    public static int getSideeffectsyesnoconceptid() {
+    	return sideEffectsYesNoConceptID;
+    }
+
+	
+    public static int getSideeffectsstringconceptid() {
+    	return sideEffectsStringConceptID;
+    }
+
+	
+    public static int getStageconceptid() {
+    	return stageConceptID;
+    }
+
+	
+    public static int getTbstatusconceptid() {
+    	return tbStatusConceptID;
+    }
+
+	
+    public static int getTypeconceptid() {
+    	return typeConceptID;
+    }
+
+	
+    public static int getVhwprogramconceptid() {
+    	return vhwProgramConceptID;
+    }
+
+	
+    public static int getWgtconceptid() {
+    	return wgtConceptID;
+    }
+
+	
+    public static int getIgno01dateoflastmenstrualblood2conceptid() {
+    	return igno01DateOfLastMenstrualBlood2ConceptID;
+    }
+
+	
+    public static int getIgno02reasonantiretroviralsstarted2conceptid() {
+    	return igno02ReasonAntiretroviralsStarted2ConceptID;
+    }
+
+	
+    public static int getIgno03name2conceptid() {
+    	return igno03Name2ConceptID;
+    }
+
+	
+    public static int getIgno04commentsatconclustionofexamination2conceptid() {
+    	return igno04CommentsAtConclustionOfExamination2ConceptID;
+    }
+
+	
+    public static int getIgno05isoncpt2conceptid() {
+    	return igno05IsOnCpt2ConceptID;
+    }
+
+	
+    public static int getIgno06guardianpresent2conceptid() {
+    	return igno06GuardianPresent2ConceptID;
+    }
+
+	
+    public static int getIgno07lastnamecommunityhealthworkerreportedconceptid() {
+    	return igno07LastNameCommunityHealthWorkerReportedConceptID;
+    }
+
+	
+    public static int getIgno07firstnamecommunityhealthworkerreportedconceptid() {
+    	return igno07FirstNameCommunityHealthWorkerReportedConceptID;
+    }
+
+	
+    public static int getIgno09hivdiagnososconstructconceptid() {
+    	return igno09HiVDiagnososConstructConceptID;
+    }
+
+	
+    public static int getIgno10transferinconceptid() {
+    	return igno10TransferInConceptID;
+    }
+
+	
+    public static int getIgno11goestoworkorschoolconceptid() {
+    	return igno11GoesToWorkOrSchoolConceptID;
+    }
+
+	
+    public static int getIgno12name2conceptid() {
+    	return igno12Name2ConceptID;
+    }
+
+	
+    public static int getIgno13tinsofantiretroviralsgiventopatientconceptid() {
+    	return igno13TinsOfAntiretroviralsGivenToPatientConceptID;
+    }
+
+	
+    public static int getIgno14whostagecriteriapresentconceptid() {
+    	return igno14WhoStageCriteriaPresentConceptID;
+    }
+
+	
+    public static int getIgno15dataclerkcommentsconceptid() {
+    	return igno15DataClerkCommentsConceptID;
+    }
+
+	
+    public static int getIgno16likuniphalagiventopatientconceptid() {
+    	return igno16LikuniPhalaGivenToPatientConceptID;
+    }
+
+	
+    public static int getIgno18appointmentreasonortypeconceptid() {
+    	return igno18AppointmentReasonOrTypeConceptID;
+    }
+
+	
+    public static int getIgno19appointmentsetconceptid() {
+    	return igno19AppointmentSetConceptID;
+    }
+
+	
+    public String getOpenMrsId() {
+    	return openMrsId;
+    }
 	
 }

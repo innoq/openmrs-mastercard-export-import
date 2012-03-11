@@ -141,7 +141,10 @@ public abstract class AbstractEncounter {
 			if (!pp.isVoided()) {
 				for (PatientState ps : pp.getStates()) {
 					if (!ps.isVoided()) {
-						sortedStates.put(ps.getStartDate(), ps);
+						Date sDate = ps.getStartDate();
+						if (sDate != null) {
+							sortedStates.put(sDate, ps);
+						}
 					}
 				}
 			}
