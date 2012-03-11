@@ -1,5 +1,5 @@
 /**
- * The contents of this file are subject to the OpenMRS Public License
+ for  * The contents of this file are subject to the OpenMRS Public License
  * Version 1.0 (the "License"); you may not use this file except in
  * compliance with the License. You may obtain a copy of the License at
  * http://license.openmrs.org
@@ -26,7 +26,7 @@ public class IEncounter extends IBaseData {
 	
 	public Integer encounterTypeId = null;
 	
-	public String providerName = null;
+	public Integer providerNameId = null;
 	
 	public List<IObs> obses = new ArrayList<IObs>();
 	
@@ -57,7 +57,7 @@ public class IEncounter extends IBaseData {
 		String result = "";
 		for (IObs obs : obses) {
 			if (obs.conceptId.equals(conceptId)) {
-				result += obs.valueAsString + "|";
+				result += obs.valueCodedConceptId + "|";
 			}
 		}
 		return (result.lastIndexOf("|") > 0 ? result.substring(0, result.length() - 1) : result);
@@ -69,7 +69,7 @@ public class IEncounter extends IBaseData {
 			String token = st.nextToken();
 			IObs obs = new IObs();
 			obs.conceptId = conceptId;
-			obs.valueCodedConceptName = token;
+			obs.valueCodedConceptId = Integer.parseInt(token);
 			obses.add(obs);
 		}
 	}

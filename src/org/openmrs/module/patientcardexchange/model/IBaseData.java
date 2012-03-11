@@ -13,9 +13,9 @@
  */
 package org.openmrs.module.patientcardexchange.model;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.openmrs.module.patientcardexchange.Util;
 
 public abstract class IBaseData  {
 	
@@ -40,31 +40,19 @@ public abstract class IBaseData  {
 	public String voidReason =null;
 	
 	protected String formatDate(Date date) {
-		if (date == null) {
-			return "";
-		}
-		return new SimpleDateFormat("dd-MMM-yyyy").format(date);
+		return Util.formatDate(date);
 	}
 	
 	protected Date parseDate(String date) {
-		if (isEmpty(date)) {
-			return null;
-		}
-		try {
-	        return new SimpleDateFormat("dd-MMM-yyyy").parse(date);
-        }
-        catch (ParseException e) {
-        	e.printStackTrace();
-        }
-        return null;
+		return Util.parseDate(date);
 	}
 	
 	protected boolean isEmpty(String cell) {
-		return cell == null || "".equals(cell);
+		return Util.isEmpty(cell);
 	}
 	
 	protected boolean isNotEmpty(String remainingExpression) {
-		return remainingExpression != null && !remainingExpression.equals("");
+		return Util.isNotEmpty(remainingExpression);
 	}
 	
 }

@@ -14,9 +14,6 @@
 package org.openmrs.module.patientcardexchange;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,7 +24,6 @@ import java.util.Set;
 import org.openmrs.BaseOpenmrsData;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
-import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -47,7 +43,7 @@ import org.openmrs.module.patientcardexchange.model.IPatientProgram;
 import org.openmrs.module.patientcardexchange.model.IPatientState;
 import org.openmrs.util.OpenmrsUtil;
 
-public class Converter {
+public class ConverterFromPatient {
 	
 	public IPatient convert(Patient src, EncounterType initialEncounterType, EncounterType followupEncounterType, Connection jdbcConnection) {
 		IPatient target = new IPatient();
@@ -79,7 +75,6 @@ public class Converter {
 			targetEncounter.locationId = srcEncounter.getLocation().getLocationId();
 			targetEncounter.obses = convertObses(srcEncounter.getAllObs());
 			//			targetEncounter.providerName
-			target.followupEncounters.add(targetEncounter);
 			target.encounters.add(targetEncounter);
 		}
 		target.gender = src.getGender();
@@ -94,7 +89,6 @@ public class Converter {
 			targetEncounter.locationId = srcEncounter.getLocation().getLocationId();
 			targetEncounter.obses = convertObses(srcEncounter.getAllObs());
 			//			targetEncounter.providerName
-			target.initialEncounter = targetEncounter;
 			target.encounters.add(targetEncounter);
 			break; // should only be one
 		}
@@ -124,7 +118,7 @@ public class Converter {
 			convertBaseData(srcPp, targetPp);
 			targetPp.dateCompleted = srcPp.getDateCompleted();
 			targetPp.dateEnrolled = srcPp.getDateEnrolled();
-			targetPp.locationId = getEnrollmentLocation(srcPp, jdbcConnection).getLocationId();
+			targetPp.locationId = Util.getEnrollmentLocation(srcPp, jdbcConnection).getLocationId();
 			targetPp.programId = srcPp.getProgram().getProgramId();
 			// first sort states that that they are coming in the correct order
 			List<PatientState> states = new ArrayList<PatientState>();
@@ -198,22 +192,5 @@ public class Converter {
 		target.voided = src.getVoided();
 		target.voidedById = (src.getVoidedBy() != null ? src.getVoidedBy().getUserId() : null);
 		target.voidReason = src.getVoidReason();
-	}
-	
-	private Location getEnrollmentLocation(PatientProgram pp, Connection con) {
-		// you gained the right to kill me once you see this...
-		String sql = "select location_id from patient_program where patient_program_id = " + pp.getId();
-		try {
-			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery(sql);
-			if (rs.next()) {
-				return Context.getLocationService().getLocation(rs.getInt(1));
-			}
-		}
-		catch (SQLException e1) {
-			e1.printStackTrace();
-		}
-		
-		return null;
-	}
+	}	
 }

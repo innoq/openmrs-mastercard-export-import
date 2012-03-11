@@ -15,16 +15,11 @@ package org.openmrs.module.patientcardexchange;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.openmrs.EncounterType;
 import org.openmrs.module.patientcardexchange.model.DeserializingHint;
 import org.openmrs.module.patientcardexchange.model.IEncounter;
 import org.openmrs.module.patientcardexchange.model.IPatient;
@@ -35,170 +30,111 @@ import org.openmrs.module.patientcardexchange.model.IPatientState;
 public class CsvDeserializer {
 	
 	public IPatient deserialize(List<String[]> patient, List<String[]> csvTemplate) {
-		int rowOffset = 0;
-		IPatient p = new IPatient();
-		
-		for (int rowCount = 0; rowCount < patient.size(); rowCount++){
-			String[] row = patient.get(rowCount);
-			if (isRepeatProgramEnrollments(row)) {
-				// todo, little hack to get the data at least somehow; ideally it should be part of the encounters themselves
-				IPatientProgram pp = new IPatientProgram();
-				for (int colCount = 1; colCount < row.length; colCount++) {
-					String templateCell = csvTemplate.get(rowCount - rowOffset)[colCount];
-					if (isExpression(templateCell)) {
-						String expression = templateCell.substring(1, templateCell.length() - 1);
-						setValue(pp, expression, row[colCount]);
+		try {
+			int rowOffset = 0;
+			IPatient p = new IPatient();
+			
+			for (int rowCount = 0; rowCount < patient.size(); rowCount++) {
+				String[] row = patient.get(rowCount);
+				if (isRepeatProgramEnrollments(row)) {
+					// todo, little hack to get the data at least somehow; ideally it should be part of the encounters themselves
+					IPatientProgram pp = new IPatientProgram();
+					pp.programId = Integer.parseInt(row[1]);
+					pp.dateEnrolled = Util.isNotEmpty(row[2]) ? Util.parseDate(row[2]) : null;
+					pp.dateCompleted = Util.isNotEmpty(row[3]) ? Util.parseDate(row[3]) : null;
+					pp.locationId = Util.isNotEmpty(row[4]) ? Integer.parseInt(row[4]) : null;
+					for (int colCount = 5; colCount < row.length; colCount += 4) {
+						if (Util.isNotEmpty(row[colCount]) && Util.isNotEmpty(row[colCount+1])) {
+							IPatientState ps = new IPatientState();
+							ps.programWorkflowId = Integer.parseInt(row[colCount]);
+							ps.programWorkflowStateId = Integer.parseInt(row[colCount + 1]);
+							ps.startDate = Util.isNotEmpty(row[colCount + 2]) ? Util.parseDate(row[colCount + 2]) : null;
+							ps.endDate = Util.isNotEmpty(row[colCount + 3]) ? Util.parseDate(row[colCount + 3]) : null;
+							pp.states.add(ps);
+						}
 					}
-				}
-				p.patientPrograms.add(pp);
-				if (rowCount < patient.size() - 1) {
-					String[] nextRow = patient.get(rowCount + 1);
-					if (isRepeatProgramEnrollments(nextRow)) {
-						rowOffset++;
+					p.patientPrograms.add(pp);
+					if (rowCount < patient.size() - 1) {
+						String[] nextRow = patient.get(rowCount + 1);
+						if (isRepeatProgramEnrollments(nextRow)) {
+							rowOffset++;
+						}
 					}
-				}
-			} else if (isRepeatPatientIdentifiers(row)) {
-				IPatientIdentifier pi = new IPatientIdentifier();
-				for (int colCount = 1; colCount < row.length; colCount++) {
-					String templateCell = csvTemplate.get(rowCount - rowOffset)[colCount];
-					if (isExpression(templateCell)) {
-						String expression = templateCell.substring(1, templateCell.length() - 1);
-						setValue(pi, expression, row[colCount]);
+				} else if (isRepeatPatientIdentifiers(row)) {
+					IPatientIdentifier pi = new IPatientIdentifier();
+					for (int colCount = 1; colCount < row.length; colCount++) {
+						if ((rowCount - rowOffset) < csvTemplate.size()
+						        && colCount < csvTemplate.get(rowCount - rowOffset).length) {
+							String templateCell = csvTemplate.get(rowCount - rowOffset)[colCount];
+							if (isExpression(templateCell)) {
+								String expression = templateCell.substring(1, templateCell.length() - 1);
+								setValue(pi, expression, row[colCount]);
+							}
+						}
 					}
-				}
-				p.identifiers.add(pi);
-				if (rowCount < patient.size() - 1) {
-					String[] nextRow = patient.get(rowCount + 1);
-					if (isRepeatPatientIdentifiers(nextRow)) {
-						rowOffset++;
+					p.identifiers.add(pi);
+					if (rowCount < patient.size() - 1) {
+						String[] nextRow = patient.get(rowCount + 1);
+						if (isRepeatPatientIdentifiers(nextRow)) {
+							rowOffset++;
+						}
 					}
-				}
-			} else if (isRepeatEncounterRow(row)) {
-				// scope of followup encounter
-				IEncounter encounter = new IEncounter();
-				encounter.encounterTypeId = Integer.parseInt("" + parseArgs(row[0])[0]);
-				for (int colCount = 1; colCount < row.length; colCount++) {
-					String templateCell = csvTemplate.get(rowCount - rowOffset)[colCount];
-					if (isExpression(templateCell)) {
-						String expression = templateCell.substring(1, templateCell.length() - 1);
-						setValue(encounter, expression, row[colCount]);
+				} else if (isRepeatEncounterRow(row)) {
+					// scope of followup encounter
+					IEncounter encounter = new IEncounter();
+					encounter.encounterTypeId = Integer.parseInt("" + parseArgs(row[0])[0]);
+					for (int colCount = 1; colCount < row.length; colCount++) {
+						if ((rowCount - rowOffset) < csvTemplate.size()
+						        && colCount < csvTemplate.get(rowCount - rowOffset).length) {
+							String templateCell = csvTemplate.get(rowCount - rowOffset)[colCount];
+							if (isExpression(templateCell)) {
+								String expression = templateCell.substring(1, templateCell.length() - 1);
+								setValue(encounter, expression, row[colCount]);
+							}
+						}
 					}
-				}
-				p.encounters.add(encounter);
-				if (rowCount < patient.size() - 1) {
-					String[] nextRow = patient.get(rowCount + 1);
-					if (isRepeatEncounterRow(nextRow)) {
-						rowOffset++;
+					p.encounters.add(encounter);
+					if (rowCount < patient.size() - 1) {
+						String[] nextRow = patient.get(rowCount + 1);
+						if (isRepeatEncounterRow(nextRow)) {
+							rowOffset++;
+						}
 					}
-				}
-			} else {
-				// scope of the current patient
-				int colCount = 0;
-				for (String col : row) {
-					String templateCell = csvTemplate.get(rowCount - rowOffset)[colCount];
-					if (isExpression(templateCell)) {
-						String expression = templateCell.substring(1, templateCell.length() - 1);
-						setValue(p, expression, col);
+				} else {
+					// scope of the current patient
+					int colCount = 0;
+					for (String col : row) {
+						if (Util.isNotEmpty(col)) {
+							String templateCell = csvTemplate.get(rowCount - rowOffset)[colCount];
+							if (isExpression(templateCell)) {
+								String expression = templateCell.substring(1, templateCell.length() - 1);
+								setValue(p, expression, col);
+							}
+						}
+						colCount++;
 					}
-					colCount++;
 				}
 			}
+			return p;
 		}
-		return p;
-	}
-
-    private int currentRowOffset(IPatient p) {
-    	int forEachElements = 0;
-    	if (p != null && p.patientPrograms != null && p.patientPrograms.size() > 1) {
-    		forEachElements += p.patientPrograms.size() - 1;
-    	}
-    	if (p != null && p.identifiers != null && p.identifiers.size() > 1) {
-    		forEachElements += p.identifiers.size() - 1;
-    	}
-    	if (p != null && p.patientPrograms != null && p.patientPrograms.size() > 1) {
-    		forEachElements += p.patientPrograms.size() - 1;
-    	}
-	    return 0;
-    }
-
-	private List<String> serializeFollowupEncounter(String[] row, IEncounter encounter) {
-	    List<String> rowColumns = new ArrayList<String>();
-	    for (String col : row) {
-	    	String cell = col;
-	    	if (isExpression(col)) {
-	    		String expression = col.substring(1, col.length() - 1);
-//	    		cell = evaluateExpression(encounter, expression);
-	    	}
-	    	rowColumns.add(cell);
-	    }
-	    return rowColumns;
-    }
-
-	private List<String> serializeProgramEnrollment(String[] row, IPatientProgram program) {
-	    List<String> rowColumns = new ArrayList<String>();
-	    // for the first cell put in the tag again
-	    rowColumns.add(row[0]);
-	    // now the program details
-	    rowColumns.add("" + program.programId);
-	    rowColumns.add(formatDate(program.dateEnrolled));
-	    rowColumns.add(formatDate(program.dateCompleted));
-	    rowColumns.add("" + program.locationId);
-	    // group states by workflow
-	    Map<Integer, List<IPatientState>> workflowsWithStates = new HashMap<Integer, List<IPatientState>>();
-	    for (IPatientState state : program.states) {
-	    	if (workflowsWithStates.containsKey(state.programWorkflowId)) {
-	    		workflowsWithStates.get(state.programWorkflowId).add(state);
-	    	} else {
-	    		ArrayList<IPatientState> stateList = new ArrayList<IPatientState>();
-	    		stateList.add(state);
-	    		workflowsWithStates.put(state.programWorkflowId, stateList);
-	    	}
-	    }
-	    for (Integer programWorkflowId : workflowsWithStates.keySet()) {
-	    	rowColumns.add("" + programWorkflowId);
-	    	for (IPatientState state : workflowsWithStates.get(programWorkflowId)) {
-	    		rowColumns.add("" + state.programWorkflowStateId);
-	    		rowColumns.add(formatDate(state.startDate));
-	    		rowColumns.add(formatDate(state.endDate));
-	    	}
-	    }
-	    return rowColumns;
-    }
-	
-	private List<String> serializePatientIdentifier(String[] row, IPatientIdentifier pi) {
-	    List<String> rowColumns = new ArrayList<String>();
-	    // for the first cell put in the tag again
-	    rowColumns.add(row[0]);
-	    // now the identifier details
-		rowColumns.add(pi.identifier);
-		rowColumns.add("" + pi.locationId);
-		rowColumns.add("" + pi.identifierTypeId);
-		rowColumns.add(pi.uuid);
-	    return rowColumns;
-    }
-	
-	private String formatDate(Date date) {
-		if (date == null) {
-			return "";
+		catch (Exception e) {
+			System.out.println("Error deserializing patient: " + e.getMessage());
 		}
-		return new SimpleDateFormat("dd-MMM-yyyy").format(date);
+		return null;
 	}
 	
-	private Date parseDate(String date) {
-		if (isEmpty(date)) {
-			return null;
+	private int currentRowOffset(IPatient p) {
+		int forEachElements = 0;
+		if (p != null && p.patientPrograms != null && p.patientPrograms.size() > 1) {
+			forEachElements += p.patientPrograms.size() - 1;
 		}
-		try {
-	        return new SimpleDateFormat("dd-MMM-yyyy").parse(date);
-        }
-        catch (ParseException e) {
-        	e.printStackTrace();
-        }
-        return null;
-	}
-	
-	private boolean isEmpty(String cell) {
-		return cell == null || "".equals(cell);
+		if (p != null && p.identifiers != null && p.identifiers.size() > 1) {
+			forEachElements += p.identifiers.size() - 1;
+		}
+		if (p != null && p.patientPrograms != null && p.patientPrograms.size() > 1) {
+			forEachElements += p.patientPrograms.size() - 1;
+		}
+		return 0;
 	}
 	
 	private void setValue(Object baseData, String expression, Object value) {
@@ -239,7 +175,7 @@ public class CsvDeserializer {
 									Class myClass = m.getReturnType();
 									newBaseData = myClass.newInstance();
 									// now preset the field specified by the param annotation with the value of the param
-//									m.getParameterTypes()[0];
+									//									m.getParameterTypes()[0];
 									DeserializingHint a = (DeserializingHint) m.getParameterAnnotations()[0][0];
 									Field field = myClass.getField(a.fieldName());
 									field.set(newBaseData, parseArgs(fieldName)[0]);
@@ -250,7 +186,8 @@ public class CsvDeserializer {
 									} else if (field2.getType() == List.class) {
 										((List) field2.get(baseData)).add(newBaseData);
 									}
-								} if (m.getAnnotation(DeserializingHint.class) != null) {
+								}
+								if (m.getAnnotation(DeserializingHint.class) != null) {
 									Class myClass = m.getReturnType();
 									newBaseData = myClass.newInstance();
 									DeserializingHint a2 = (DeserializingHint) m.getAnnotations()[0];
@@ -260,7 +197,7 @@ public class CsvDeserializer {
 									} else if (field2.getType() == List.class) {
 										((List) field2.get(baseData)).add(newBaseData);
 									}
-								}else {
+								} else {
 									throw new RuntimeException("Couldn't instanciate object");
 								}
 							}
@@ -275,16 +212,29 @@ public class CsvDeserializer {
 									type = types[0];
 									if (type == Integer.class && isNotEmpty("" + value)) {
 										m.invoke(baseData, Integer.parseInt("" + value));
+										methodFound = true;
+										break;
 									} else if (type == Date.class) {
-										m.invoke(baseData, parseDate("" + value));
+										m.invoke(baseData, Util.parseDate("" + value));
+										methodFound = true;
+										break;
 									} else if (type == String.class) {
 										m.invoke(baseData, value);
+										methodFound = true;
+										break;
+									} else {
+										System.out.println("Unknown type: " + baseData + " - " + expression + " - " + value);
+									}
+								} else if (types != null && types.length == 2 /*&& isNotEmpty("" + value)*/) {
+									type = types[0];
+									if (type == Integer.class && isNotEmpty("" + parseArgs(expression)[0])) {
+										m.invoke(baseData, Integer.parseInt("" + parseArgs(expression)[0]), "" + value);
+										methodFound = true;
+										break;
 									} else {
 										System.out.println("Unknown type: " + baseData + " - " + expression + " - " + value);
 									}
 								}
-								methodFound = true;
-								break;
 							}
 						}
 					}
@@ -302,11 +252,11 @@ public class CsvDeserializer {
 					setValue(newBaseData, remainingExpression, value);
 				} else {
 					Class<?> type = field.getType();
-					if (value == null || (value instanceof String && isEmpty((String) value))) {
-					} else if (type == Integer.class && isNotEmpty("" + value)) {
+					if (value == null || (value instanceof String && Util.isEmpty((String) value))) {} else if (type == Integer.class
+					        && isNotEmpty("" + value)) {
 						field.set(baseData, Integer.parseInt("" + value));
 					} else if (type == Date.class) {
-						field.set(baseData, parseDate("" + value));
+						field.set(baseData, Util.parseDate("" + value));
 					} else if (type == String.class) {
 						field.set(baseData, value);
 					} else if (type == Double.class) {
@@ -343,7 +293,8 @@ public class CsvDeserializer {
 	}
 	
 	private boolean isExpression(String cell) {
-		return (cell != null && cell.startsWith("#") && cell.endsWith("#") && !"#forEachFollowupEncounter(".equals(cell) && !"#forEachPatientIdentifier#".equals(cell) && !"#forEachProgramEnrollment#".equals(cell));
+		return (cell != null && cell.startsWith("#") && cell.endsWith("#") && !"#forEachFollowupEncounter(".equals(cell)
+		        && !"#forEachPatientIdentifier#".equals(cell) && !"#forEachProgramEnrollment#".equals(cell));
 	}
 	
 	private boolean isRepeatEncounterRow(String[] row) {
@@ -351,7 +302,7 @@ public class CsvDeserializer {
 	}
 	
 	private boolean isRepeatProgramEnrollments(String[] row) {
-		return (row != null & row[0] != null && "#forEachProgramEnrollment#".equals(row[0]));
+		return (row != null & row[0] != null && "#printEachProgramEnrollment#".equals(row[0]));
 	}
 	
 	private boolean isRepeatPatientIdentifiers(String[] row) {

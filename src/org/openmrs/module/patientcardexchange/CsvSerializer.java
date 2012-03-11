@@ -15,7 +15,6 @@ package org.openmrs.module.patientcardexchange;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,14 +44,14 @@ public class CsvSerializer {
 			} else if (isRepeatPatientIdentifiers(row)) {
 				// todo, little hack to get the data at least somehow
 				for (IPatientIdentifier identifier : patient.identifiers) {
-					List<String> rowColumns = serializePatientIdentifier(row, identifier);
+					List<String> rowColumns = serializeBaseData(row, identifier);
 					csv.add((String[]) rowColumns.toArray(new String[rowColumns.size()]));
 				}
 			} else if (isRepeatEncounterRow(row)) {
 				// scope of followup encounter
 				// i know there is a better way to handle repeating encounters
 				for (IEncounter encounter : patient.encounters(Integer.parseInt("" + parseArgs(row[0])[0]))) {
-					List<String> rowColumns = serializeFollowupEncounter(row, encounter);
+					List<String> rowColumns = serializeBaseData(row, encounter);
 					csv.add((String[]) rowColumns.toArray(new String[rowColumns.size()]));
 				}
 			} else {
@@ -71,82 +70,50 @@ public class CsvSerializer {
 		}
 		return csv;
 	}
-
-	private List<String> serializeFollowupEncounter(String[] row, IEncounter encounter) {
-	    List<String> rowColumns = new ArrayList<String>();
-	    for (String col : row) {
-	    	String cell = col;
-	    	if (isExpression(col)) {
-	    		String expression = col.substring(1, col.length() - 1);
-	    		cell = evaluateExpression(encounter, expression);
-	    	}
-	    	rowColumns.add(cell);
-	    }
-	    return rowColumns;
-    }
-
+	
 	private List<String> serializeProgramEnrollment(String[] row, IPatientProgram program) {
-	    List<String> rowColumns = new ArrayList<String>();
-	    // for the first cell put in the tag again
-	    rowColumns.add(row[0]);
-	    // now the program details
-	    rowColumns.add("" + program.programId);
-	    rowColumns.add(formatDate(program.dateEnrolled));
-	    rowColumns.add(formatDate(program.dateCompleted));
-	    rowColumns.add("" + program.locationId);
-	    // group states by workflow
-	    Map<Integer, List<IPatientState>> workflowsWithStates = new HashMap<Integer, List<IPatientState>>();
-	    for (IPatientState state : program.states) {
-	    	if (workflowsWithStates.containsKey(state.programWorkflowId)) {
-	    		workflowsWithStates.get(state.programWorkflowId).add(state);
-	    	} else {
-	    		ArrayList<IPatientState> stateList = new ArrayList<IPatientState>();
-	    		stateList.add(state);
-	    		workflowsWithStates.put(state.programWorkflowId, stateList);
-	    	}
-	    }
-	    for (Integer programWorkflowId : workflowsWithStates.keySet()) {
-	    	rowColumns.add("" + programWorkflowId);
-	    	for (IPatientState state : workflowsWithStates.get(programWorkflowId)) {
-	    		rowColumns.add("" + state.programWorkflowStateId);
-	    		rowColumns.add(formatDate(state.startDate));
-	    		rowColumns.add(formatDate(state.endDate));
-	    	}
-	    }
-	    return rowColumns;
-    }
-	
-	private List<String> serializePatientIdentifier(String[] row, IBaseData base) {
-	    List<String> rowColumns = new ArrayList<String>();
-	    for (String col : row) {
-	    	String cell = col;
-	    	if (isExpression(col)) {
-	    		String expression = col.substring(1, col.length() - 1);
-	    		cell = evaluateExpression(base, expression);
-	    	}
-	    	rowColumns.add(cell);
-	    }
-	    return rowColumns;
-//	    List<String> rowColumns = new ArrayList<String>();
-//	    // for the first cell put in the tag again
-//	    rowColumns.add(row[0]);
-//	    // now the identifier details
-//		rowColumns.add(pi.identifier);
-//		rowColumns.add("" + pi.locationId);
-//		rowColumns.add("" + pi.identifierTypeId);
-//		rowColumns.add(pi.uuid);
-//	    return rowColumns;
-    }
-	
-	private String formatDate(Date date) {
-		if (date == null) {
-			return "";
+		List<String> rowColumns = new ArrayList<String>();
+		// for the first cell put in the tag again
+		rowColumns.add(row[0]);
+		// now the program details
+		rowColumns.add("" + program.programId);
+		rowColumns.add(Util.formatDate(program.dateEnrolled));
+		rowColumns.add(Util.formatDate(program.dateCompleted));
+		rowColumns.add("" + program.locationId);
+		// group states by workflow
+		Map<Integer, List<IPatientState>> workflowsWithStates = new HashMap<Integer, List<IPatientState>>();
+		for (IPatientState state : program.states) {
+			if (workflowsWithStates.containsKey(state.programWorkflowId)) {
+				workflowsWithStates.get(state.programWorkflowId).add(state);
+			} else {
+				ArrayList<IPatientState> stateList = new ArrayList<IPatientState>();
+				stateList.add(state);
+				workflowsWithStates.put(state.programWorkflowId, stateList);
+			}
 		}
-		return new SimpleDateFormat("dd-MMM-yyyy").format(date);
+		for (Integer programWorkflowId : workflowsWithStates.keySet()) {
+			//	    	rowColumns.add("" + programWorkflowId);
+			for (IPatientState state : workflowsWithStates.get(programWorkflowId)) {
+				rowColumns.add("" + state.programWorkflowId);
+				rowColumns.add("" + state.programWorkflowStateId);
+				rowColumns.add(Util.formatDate(state.startDate));
+				rowColumns.add(Util.formatDate(state.endDate));
+			}
+		}
+		return rowColumns;
 	}
 	
-	private boolean isEmpty(String cell) {
-		return cell == null || "".equals(cell);
+	private List<String> serializeBaseData(String[] row, IBaseData base) {
+		List<String> rowColumns = new ArrayList<String>();
+		for (String col : row) {
+			String cell = col;
+			if (isExpression(col)) {
+				String expression = col.substring(1, col.length() - 1);
+				cell = evaluateExpression(base, expression);
+			}
+			rowColumns.add(cell);
+		}
+		return rowColumns;
 	}
 	
 	private String evaluateExpression(Object baseData, String expression) {
@@ -155,7 +122,7 @@ public class CsvSerializer {
 			if (expression.startsWith("patient.")) {
 				expression = expression.substring("patient.".length(), expression.length());
 			}
-			Class aClass = baseData.getClass();
+			Class<?> aClass = baseData.getClass();
 			int fieldLength = expression.length();
 			if (expression.indexOf(".") > 0) {
 				fieldLength = expression.indexOf(".");
@@ -172,16 +139,16 @@ public class CsvSerializer {
 				for (Method m : aClass.getMethods()) {
 					if (m.getName().equals(methodName)) {
 						Object[] args = parseArgs(expression);
-						if ((args == null && m.getParameterTypes().length == 0) || 
-								(args != null && m.getParameterTypes().length > 0)) {
+						if ((args == null && m.getParameterTypes().length == 0)
+						        || (args != null && m.getParameterTypes().length > 0)) {
 							// todo, wrong assumption that there will only be one method with this name...
 							// todo, and not only integer values are passed in as params
 							Object value = m.invoke(baseData, args);
-							if (isNotEmpty(remainingExpression) && value != null) {
+							if (Util.isNotEmpty(remainingExpression) && value != null) {
 								v = evaluateExpression(value, remainingExpression);
 							} else {
 								if (value instanceof Date) {
-									v = formatDate((Date) value);
+									v = Util.formatDate((Date) value);
 								} else {
 									v = (value != null ? value.toString() : "");
 								}
@@ -199,10 +166,10 @@ public class CsvSerializer {
 				Field field = aClass.getField(fieldName);
 				
 				Object value = field.get(baseData);
-				if (isNotEmpty(remainingExpression)) {
+				if (Util.isNotEmpty(remainingExpression)) {
 					v = evaluateExpression(value, remainingExpression);
 				} else if (value instanceof Date) {
-					v = formatDate((Date) value);
+					v = Util.formatDate((Date) value);
 				} else {
 					v = (value != null ? value.toString() : "");
 				}
@@ -228,12 +195,9 @@ public class CsvSerializer {
 		return t.toArray();
 	}
 	
-	private boolean isNotEmpty(String remainingExpression) {
-		return remainingExpression != null && !remainingExpression.equals("");
-	}
-	
 	private boolean isExpression(String cell) {
-		return (cell != null && cell.startsWith("#") && cell.endsWith("#") && !cell.startsWith("#forEachEncounter(") && !cell.equals("#forEachPatientIdentifier#"));
+		return (cell != null && cell.startsWith("#") && cell.endsWith("#") && !cell.startsWith("#forEachEncounter(") && !cell
+		        .equals("#forEachPatientIdentifier#"));
 	}
 	
 	private boolean isRepeatEncounterRow(String[] row) {

@@ -15,14 +15,14 @@ package org.openmrs.module.patientcardexchange.model;
 
 public class IPatientAddress extends IBaseData {
 	
-	public Boolean preferred = null;
+	public Boolean preferred = false;
 	
-	public String address1 = null;
+	public String address1 = "";
 	
-	public String address2 = null;
+	public String address2 = "";
 	
-	public String cityVillage = null;
+	public String cityVillage = "";
 	
-	public String countyDistrict = null;
+	public String countyDistrict = "";
 	
 }

@@ -15,12 +15,12 @@ package org.openmrs.module.patientcardexchange.model;
 
 public class IPatientIdentifier extends IBaseData {
 	
-	public String identifier = null;
+	public String identifier = "";
 	
 	public Integer identifierTypeId = null;
 	
 	public Integer locationId = null;
 	
-	public Boolean preferred = null;
+	public Boolean preferred = false;
 	
 }

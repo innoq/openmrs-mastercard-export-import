@@ -13,8 +13,23 @@
  */
 package org.openmrs.module.patientcardexchange.model;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.openmrs.Concept;
+import org.openmrs.EncounterType;
+import org.openmrs.Form;
+import org.openmrs.Location;
+import org.openmrs.PatientIdentifierType;
+import org.openmrs.PatientProgram;
+import org.openmrs.Person;
+import org.openmrs.Program;
+import org.openmrs.ProgramWorkflowState;
+import org.openmrs.api.context.Context;
 
 public class MetadataLookup {
 	
@@ -27,4 +42,48 @@ public class MetadataLookup {
 	Map<Integer, String> programWorkflows = new HashMap<Integer, String>();
 	
 	Map<Integer, String> programWorkflowStates = new HashMap<Integer, String>();
+
+    public static Concept lookupConcept(Integer conceptId) {
+    	return (conceptId != null ? Context.getConceptService().getConcept(conceptId) : null);
+    }
+
+    public static EncounterType lookupEncounterType(Integer encounterTypeId) {
+    	return (encounterTypeId != null ? Context.getEncounterService().getEncounterType(encounterTypeId) : null);
+    }
+
+    public static Location lookupLocation(Integer locationId) {
+    	return (locationId != null ? Context.getLocationService().getLocation(locationId) : null);
+    }
+
+    public static PatientIdentifierType lookupPatientIdentifierType(Integer identifierTypeId) {
+    	return (identifierTypeId != null ? Context.getPatientService().getPatientIdentifierType(identifierTypeId) : null);
+    }
+
+    public static Program lookupProgram(Integer programId) {
+    	return (programId != null ? Context.getProgramWorkflowService().getProgram(programId) : null);
+    }
+
+    public static ProgramWorkflowState lookupProgramWorkflowState(Integer programWorkflowStateId) {
+    	return (programWorkflowStateId != null ? Context.getProgramWorkflowService().getState(programWorkflowStateId) : null);  
+    }
+    
+    public static Form formForEncounterType(Integer encounterTypeId) {
+    	int formId = -1;
+    	switch (encounterTypeId) {
+       		case 9:
+    			formId = 64;
+    			break;
+    		case 10:
+    			formId = 65;
+    			break;
+       		case 11:
+    			formId = 66;
+    			break;
+    		case 12:
+    			formId = 67;
+    			break;
+    	}
+	    return Context.getFormService().getForm(formId);
+    }
+
 }

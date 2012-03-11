@@ -15,11 +15,11 @@ package org.openmrs.module.patientcardexchange.model;
 
 public class IPatientName extends IBaseData {
 	
-	public Boolean preferred = null;
+	public Boolean preferred = false;
 	
-	public String givenName = null;
+	public String givenName = "";
 	
-	public String middleName = null;
+	public String middleName = "";
 	
-	public String familyName = null;
+	public String familyName = "";
 }

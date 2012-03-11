@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -29,7 +29,6 @@ import org.openmrs.Patient;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.patientcardexchange.model.IPatient;
-import org.openmrs.module.patientcardexchange.model.IPatientName;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
@@ -37,7 +36,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class Importer {
 	
 	private static Connection jdbcConnection = null;
-
+	
 	public static void main(String[] args) {
 		try {
 			// parameters
@@ -61,17 +60,14 @@ public class Importer {
 				Properties connectionProps = new Properties();
 				connectionProps.put("user", connectionUser);
 				connectionProps.put("password", conncetionPw);
-				jdbcConnection  = DriverManager
-				        .getConnection(
-				        	conncetionUrl,
-				            connectionProps);
+				jdbcConnection = DriverManager.getConnection(conncetionUrl, connectionProps);
 			}
 			catch (SQLException e) {
 				e.printStackTrace();
 			}
 			
 			new Importer().run();
-
+			
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -79,54 +75,51 @@ public class Importer {
 		System.exit(0);
 	}
 	
-	public void run() throws Exception {
-		EncounterType initial = Context.getEncounterService().getEncounterType("ART_INITIAL");
-		EncounterType followup = Context.getEncounterService().getEncounterType("ART_FOLLOWUP");
-		PatientIdentifierType identifierType = Context.getPatientService().getPatientIdentifierTypeByName("ARV Number");
+	private void run() throws Exception {
+		importMe(Context.getPatientService().getPatientIdentifierTypeByName("HCC Number"),
+		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/Pre-ART_PatientCard.csv", "LWAN ", " HCC",
+		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/", "");
+		//			List<String[]> csvPatient = new CsvSerializer().serialize(patient, csvTemplate);
+		//			writeCsvPatient(
+		//			    csvPatient,
+		//			    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/"
+		//			            + patient.identifier(identifierType.getPatientIdentifierTypeId()).identifier + " new.csv");
+	}
+	
+	private void importMe(PatientIdentifierType identifierType, String template, String identifierPrefix,
+	                      String identifierPostfix, String exportPath, String importFilePostfix) throws Exception,
+	                                                                                            IOException {
+		List<String[]> csvTemplate = readCsvTemplate(template);
+		List<IPatient> patients = new ArrayList<IPatient>();
 		
-		List<String[]> csvTemplate = readCsvTemplate("/Users/xian/projects/pih/openmrs-mastercard-export-import/src/ART_PatientCard.csv");
-		List<String[]> csvPatient = readCsvPatient("/Users/xian/projects/pih/openmrs-mastercard-export-import/export/LWAN 1.csv");
-		IPatient srcPatient = new CsvDeserializer().deserialize(csvPatient, csvTemplate);
-		System.out.println();
-		
-		csvPatient = new CsvSerializer().serialize(srcPatient, csvTemplate);
-		writeCsvPatient(csvPatient, "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/new" + srcPatient.identifier(identifierType.getPatientIdentifierTypeId()).identifier + ".csv");
-
-//		Patient p = convertPatient(srcPatient, initial, followup);
-//		savePatient(p);
+		for (int i = 1; i < 2; i++) {
+			try {
+				List<String[]> csvPatient = readCsvPatient(exportPath + identifierPrefix + +i + identifierPostfix
+				        + importFilePostfix + ".csv");
+				IPatient srcPatient = new CsvDeserializer().deserialize(csvPatient, csvTemplate);
+				patients.add(srcPatient);
+			}
+			catch (Exception e) {
+				System.out.println("Something went wrong with " + i + ".csv");
+			}
+		}
+		for (IPatient patient : patients) {
+			new ConverterToPatient().convert(patient, jdbcConnection);
+		}
 	}
 	
 	private void writeCsvPatient(List<String[]> csvPatient, String filename) throws IOException {
-    	FileWriter fw = new FileWriter(filename);
-    	CSVWriter w = new CSVWriter(fw, ';');
-    	w.writeAll(csvPatient);
-    	w.close();
-    }
-
-
-    private IPatient convertPatient(Patient patient, EncounterType initialEncounterType, EncounterType followupEncounterType) {
-    	return new Converter().convert(patient, initialEncounterType, followupEncounterType, jdbcConnection);
-    }
-
-    private IPatient convertPatient(int patientId, EncounterType initialEncounterType, EncounterType followupEncounterType) {
-    	return new Converter().convert(Context.getPatientService().getPatient(patientId), initialEncounterType, followupEncounterType, jdbcConnection);
-    }
-
+		FileWriter fw = new FileWriter(filename);
+		CSVWriter w = new CSVWriter(fw, ';');
+		w.writeAll(csvPatient);
+		w.close();
+	}
+	
 	private List<String[]> readCsvPatient(String filename) throws IOException {
-    	FileReader fr = new FileReader(filename);
-    	CSVReader r = new CSVReader(fr, ';');
-    	List<String[]> p = r.readAll();
-    	r.close();
-    	return p;
-    }
-
-	private IPatient fillTestPatient(int i) {
-		IPatient p = new IPatient();
-		IPatientName name = new IPatientName();
-		name.givenName = "given";
-		name.familyName = "family";
-		p.names.add(name);
-		p.birthdate = new Date();
+		FileReader fr = new FileReader(filename);
+		CSVReader r = new CSVReader(fr, ';');
+		List<String[]> p = r.readAll();
+		r.close();
 		return p;
 	}
 	
@@ -134,7 +127,5 @@ public class Importer {
 		CSVReader reader = new CSVReader(new FileReader(csvTemplateFile), ';', '"', 0);
 		List<String[]> csvTemplate = reader.readAll();
 		return csvTemplate;
-		//return new String[][] { { "Firstname", "#patient.names(0)#", "\n" }, { "Birthdate", "#patient.birthdate#", "\n" } };
 	}
-	
 }

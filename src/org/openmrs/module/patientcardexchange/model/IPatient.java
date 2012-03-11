@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.openmrs.Encounter;
-
 public class IPatient extends IBaseData {
 	
 	public List<IPatientAddress> addresses = new ArrayList<IPatientAddress>();;
@@ -60,11 +58,11 @@ public class IPatient extends IBaseData {
 	// todo, needed?
 	//	Set<PersonAttribute> attributes = null;
 	
-	public String gender = null;
+	public String gender = "";
 	
 	public Date birthdate = null;
 	
-	public Boolean birthdateEstimated = null;
+	public Boolean birthdateEstimated = false;
 	
 	public String birthdateWithEstimation() {
 		return formatDate(birthdate) + (birthdateEstimated ? " (Est.)" : "");
@@ -80,7 +78,7 @@ public class IPatient extends IBaseData {
 		}
 	}
 	
-	public Boolean dead = null;
+	public Boolean dead = false;
 	
 	public Date deathDate = null;
 	
@@ -109,7 +107,7 @@ public class IPatient extends IBaseData {
 		}
 		return (result.lastIndexOf("|") > 0 ? result.substring(0, result.length() - 1) : result);
 	}
-
+	
 	public List<IEncounter> encounters = new ArrayList<IEncounter>();
 	
 	@DeserializingHint(fieldName = "encounters")
@@ -136,10 +134,6 @@ public class IPatient extends IBaseData {
 		}
 		return es;
 	}
-	
-	public IEncounter initialEncounter = null;
-	
-	public List<IEncounter> followupEncounters = new ArrayList<IEncounter>();
 	
 	public List<IPatientProgram> patientPrograms = new ArrayList<IPatientProgram>();
 }
