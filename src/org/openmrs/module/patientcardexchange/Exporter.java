@@ -22,9 +22,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifierType;
@@ -77,40 +80,88 @@ public class Exporter {
 	}
 	
 	private void run() throws Exception {
-		// Exposed
-		//		export(Context.getEncounterService().getEncounterType("EXPOSED_CHILD_INITIAL"), Context.getEncounterService()
-		//		        .getEncounterType("EXPOSED_CHILD_FOLLOWUP"), Context.getPatientService().getPatientIdentifierTypeByName("HCC Number"),
-		//		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/ExposedChild_PatientCard.csv", "LWAN ", " HCC",
-		//		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/exposed/", "");
-
-		// Pre-ART
-//		export(Context.getEncounterService().getEncounterType("PART_INITIAL"), Context.getEncounterService()
-//		        .getEncounterType("PART_FOLLOWUP"), Context.getPatientService().getPatientIdentifierTypeByName("HCC Number"),
-//		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/Pre-ART_PatientCard.csv", "LWAN ", " HCC",
-//		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/part/", "");
-
+		EncounterType exposedInitial = Context.getEncounterService().getEncounterType("EXPOSED_CHILD_INITIAL");
+		EncounterType exposedFollowup = Context.getEncounterService().getEncounterType("EXPOSED_CHILD_FOLLOWUP");
+		EncounterType partInitial = Context.getEncounterService().getEncounterType("PART_INITIAL");
+		EncounterType partFollowup = Context.getEncounterService().getEncounterType("PART_FOLLOWUP");
+		EncounterType artInitial = Context.getEncounterService().getEncounterType("ART_INITIAL");
+		EncounterType artFollowup = Context.getEncounterService().getEncounterType("ART_FOLLOWUP");
+		PatientIdentifierType arvIdentifierType = Context.getPatientService().getPatientIdentifierTypeByName("ARV Number");
+		PatientIdentifierType hccIdentifierType = Context.getPatientService().getPatientIdentifierTypeByName("HCC Number");
+		
+		List<Patient> exposedPatients = new ArrayList<Patient>();
+		List<Patient> partPatients = new ArrayList<Patient>();
+		List<Patient> artPatients = new ArrayList<Patient>();
+		Map<Integer, Patient> patients = new HashMap<Integer, Patient>();
+		
+		// collect all patients that ever have been registered in LWAN for HCC or ART 
+		String identifierPrefix = "LWAN .*";
+		List<Patient> potentialPatient = Context.getPatientService().getPatients(null, identifierPrefix,
+		    Arrays.asList(hccIdentifierType), false);
+		for (Patient p : potentialPatient) {
+			patients.put(p.getId(), p);
+		}
+		potentialPatient = Context.getPatientService().getPatients(null, identifierPrefix, Arrays.asList(arvIdentifierType),
+		    false);
+		for (Patient p : potentialPatient) {
+			patients.put(p.getId(), p);
+		}
+		
+		// get all exposed, pre-art, and art history for all these patients
+		for (Patient p : patients.values()) {
+			// Exposed encounters
+			List<Encounter> encounters = Context.getEncounterService().getEncounters(p, null, null, null, null,
+			    Arrays.asList(exposedFollowup, exposedInitial), null, false);
+			if (encounters.size() > 0) {
+				export(Arrays.asList(p), exposedInitial, exposedFollowup, hccIdentifierType,
+				    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/Exposed-Child_PatientCard.csv",
+				    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/exposed/", "");
+			}
+			// part encounters
+			encounters = Context.getEncounterService().getEncounters(p, null, null, null, null,
+			    Arrays.asList(partFollowup, partInitial), null, false);
+			if (encounters.size() > 0) {
+				export(Arrays.asList(p), partInitial, partFollowup, hccIdentifierType,
+				    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/Pre-ART_PatientCard.csv",
+				    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/part/", "");
+			}
+			// art encounters
+			encounters = Context.getEncounterService().getEncounters(p, null, null, null, null,
+			    Arrays.asList(artFollowup, artInitial), null, false);
+			if (encounters.size() > 0) {
+				export(Arrays.asList(p), artInitial, artFollowup, arvIdentifierType,
+				    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/ART_PatientCard.csv",
+				    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/art/", "");
+			}
+		}
+		// also make sure we get the Pre-ART patients that have been on Pre-ART somewhere else and are now on ART in LWAN
+		/*
 		// ART
-		export(Context.getEncounterService().getEncounterType("ART_INITIAL"), Context.getEncounterService()
-		        .getEncounterType("ART_FOLLOWUP"), Context.getPatientService().getPatientIdentifierTypeByName("ARV Number"),
-		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/ART_PatientCard.csv", "LWAN ", "",
-		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/art/", "");
-	}
-	
-	private void export(EncounterType initial, EncounterType followup, PatientIdentifierType identifierType,
-	                    String template, String identifierPrefix, String identifierPostfix, String exportPath,
-	                    String exportFilePostfix) throws Exception, IOException {
-		List<String[]> csvTemplate = readCsvTemplate(template);
+		PatientIdentifierType identifierType = Context.getPatientService().getPatientIdentifierTypeByName("ARV Number");
+		String identifierPrefix = "LWAN ";
+		EncounterType initial = Context.getEncounterService().getEncounterType("ART_INITIAL");
+		EncounterType followup = Context.getEncounterService().getEncounterType("ART_FOLLOWUP");
 		List<Patient> patients = new ArrayList<Patient>();
-		for (int i = 1; i < 100; i++) {
-			List<Patient> potentialPatient = Context.getPatientService().getPatients(null,
-			    identifierPrefix + i + identifierPostfix, Arrays.asList(identifierType), true);
-			//			List<Patient> abc3 = Context.getPatientService().getPatients(null, "LWAN " + i + "_2", Arrays.asList(identifierType), false);
-			for (Patient p : potentialPatient) {
-				Context.getEncounterService().getEncounters(p, null, null, null, null, Arrays.asList(initial, followup),
-				    null, false);
+		List<Patient> potentialPatient = Context.getPatientService().getPatients(null, identifierPrefix,
+		    Arrays.asList(identifierType), false);
+		for (Patient p : potentialPatient) {
+			List<Encounter> encounters = Context.getEncounterService().getEncounters(p, null, null, null, null,
+			    Arrays.asList(initial, followup), null, false);
+			if (encounters.size() > 0) {
 				patients.add(p);
 			}
 		}
+		export(patients, initial, followup, identifierType,
+		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/ART_PatientCard.csv",
+		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/art/", "");
+		    */
+	}
+	
+	private void export(List<Patient> patients, EncounterType initial, EncounterType followup,
+	                    PatientIdentifierType identifierType, String template, String exportPath, String exportFilePostfix)
+	                                                                                                                       throws Exception,
+	                                                                                                                       IOException {
+		List<String[]> csvTemplate = readCsvTemplate(template);
 		for (Patient srcPatient : patients) {
 			IPatient patient = convertPatient(srcPatient, initial, followup);
 			List<String[]> csvPatient = new CsvSerializer().serialize(patient, csvTemplate);
