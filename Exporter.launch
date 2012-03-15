@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<stringAttribute key="bad_container_name" value="/openmrs-mastercard-export-import/Importer"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/openmrs-mastercard-export-import/src/org/openmrs/module/patientcardexchange/Exporter.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.openmrs.module.patientcardexchange.Exporter"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="/Users/xian/projects/pih/openmrs-mastercard-export-import/src/openmrs-runtime.properties cneumann cneumann2"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="openmrs-mastercard-export-import"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms1024M  -Xmx2048M"/>
+</launchConfiguration>
