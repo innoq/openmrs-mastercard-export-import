@@ -2,3 +2,4 @@
 build/*
 dist/*
 export/*
+src/openmrs-runtime.properties
