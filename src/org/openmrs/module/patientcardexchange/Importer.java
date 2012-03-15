@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.openmrs.PatientIdentifierType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.patientcardexchange.model.IPatient;
 
@@ -75,24 +74,19 @@ public class Importer {
 	
 	private void run() throws Exception {
 		// Exposed
-		importMe(Context.getPatientService().getPatientIdentifierTypeByName("HCC Number"),
-		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/Exposed-Child_PatientCard.csv", "LWAN ", " HCC",
-		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/exposed", "");
+		importMe("/Users/xian/projects/pih/openmrs-mastercard-export-import/src/Exposed-Child_PatientCard.csv",
+		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/exposed");
 		
 		// Pre-ART
-		importMe(Context.getPatientService().getPatientIdentifierTypeByName("HCC Number"),
-		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/Pre-ART_PatientCard.csv", "LWAN ", " HCC",
-		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/part", "");
+		importMe("/Users/xian/projects/pih/openmrs-mastercard-export-import/src/Pre-ART_PatientCard.csv",
+		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/part");
 		
 		// ART
-		importMe(Context.getPatientService().getPatientIdentifierTypeByName("ARV Number"),
-		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/ART_PatientCard.csv", "LWAN ", "",
-		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/art", "");
+		importMe("/Users/xian/projects/pih/openmrs-mastercard-export-import/src/ART_PatientCard.csv",
+		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/art");
 	}
 	
-	private void importMe(PatientIdentifierType identifierType, String template, String identifierPrefix,
-	                      String identifierPostfix, String exportPath, String importFilePostfix) throws Exception,
-	                                                                                            IOException {
+	private void importMe(String template, String exportPath) throws Exception, IOException {
 		List<String[]> csvTemplate = readCsvTemplate(template);
 		List<IPatient> patients = new ArrayList<IPatient>();
 		
