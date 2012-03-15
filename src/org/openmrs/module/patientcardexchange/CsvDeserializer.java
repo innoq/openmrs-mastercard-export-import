@@ -123,27 +123,12 @@ public class CsvDeserializer {
 		return null;
 	}
 	
-	private int currentRowOffset(IPatient p) {
-		int forEachElements = 0;
-		if (p != null && p.patientPrograms != null && p.patientPrograms.size() > 1) {
-			forEachElements += p.patientPrograms.size() - 1;
-		}
-		if (p != null && p.identifiers != null && p.identifiers.size() > 1) {
-			forEachElements += p.identifiers.size() - 1;
-		}
-		if (p != null && p.patientPrograms != null && p.patientPrograms.size() > 1) {
-			forEachElements += p.patientPrograms.size() - 1;
-		}
-		return 0;
-	}
-	
 	private void setValue(Object baseData, String expression, Object value) {
-		String v = "";
 		try {
 			if (expression.startsWith("patient.")) {
 				expression = expression.substring("patient.".length(), expression.length());
 			}
-			Class aClass = baseData.getClass();
+			Class<?> aClass = baseData.getClass();
 			int fieldLength = expression.length();
 			if (expression.indexOf(".") > 0) {
 				fieldLength = expression.indexOf(".");
@@ -172,7 +157,7 @@ public class CsvDeserializer {
 								if (m.getParameterTypes().length == 1 && m.getParameterAnnotations().length == 1) {
 									// assumes that there is one and only one param with one and only one annotation
 									// first create the object
-									Class myClass = m.getReturnType();
+									Class<?> myClass = m.getReturnType();
 									newBaseData = myClass.newInstance();
 									// now preset the field specified by the param annotation with the value of the param
 									//									m.getParameterTypes()[0];
@@ -188,7 +173,7 @@ public class CsvDeserializer {
 									}
 								}
 								if (m.getAnnotation(DeserializingHint.class) != null) {
-									Class myClass = m.getReturnType();
+									Class<?> myClass = m.getReturnType();
 									newBaseData = myClass.newInstance();
 									DeserializingHint a2 = (DeserializingHint) m.getAnnotations()[0];
 									Field field2 = aClass.getField(a2.fieldName());
