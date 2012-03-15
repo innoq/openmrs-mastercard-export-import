@@ -6,7 +6,7 @@ Check out
 Get it going:
 - Copy/paste src/openmrs-runtime.properties.sample to src/openmrs-runtime.properties
 - Adjust properties as needed
-(maybe not - copy cp webapps/openmrs/WEB-INF/bundledModules/logic-0.5.omod to ~/.OpenMRS/modules/)
-- Edit Eclips eRun Configuration for ArtExporter and adjust parameters as needed 
-- Run ArtExporter
+(maybe not - copy webapps/openmrs/WEB-INF/bundledModules/logic-0.5.omod to ~/.OpenMRS/modules/)
+- Edit Eclipse Run Configuration for Exporter and adjust parameters as needed 
+- Run Exporter
 - Check for files in dir export

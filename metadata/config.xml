@@ -5,21 +5,17 @@
 	
 	<!-- Base Module Properties -->
 	<id>mastercard</id>
-	<name>PIH Malawi Mastercard Module</name>
+	<name>PIH Malawi Patient card Exchange</name>
 	<version>0.1</version>
-	<package>org.openmrs.module.mastercard</package>
+	<package>org.openmrs.module.patientcardexchange</package>
 	<author>Michael Leibfried, innoQ Deutschland GmbH</author>
 	<description>
 			Export/import of Malawi-like CSV-Mastercards
 	</description>
 
-	<activator>org.openmrs.module.mastercard.MastercardActivator</activator>
+	<activator>org.openmrs.module.patientcardexchange.PatientcardActivator</activator>
 	
 	<require_version>1.5.2</require_version>
-
-	<require_modules>
-		<require_module>org.openmrs.module.pihmalawis</require_module>
-	</require_modules>
 
 	<!-- Internationalization -->
 	<!-- All message codes should start with @MODULE_ID@.* -->
