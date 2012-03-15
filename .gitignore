@@ -1,6 +1,4 @@
 .DS_Store
-Copy of ArtExporter.launch.bak
-build/**/*
+build/*
+dist/*
 export/*
-out/**/*
-log/**/*
