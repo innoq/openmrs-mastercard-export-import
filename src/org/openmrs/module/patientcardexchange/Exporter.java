@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -89,9 +88,6 @@ public class Exporter {
 		PatientIdentifierType arvIdentifierType = Context.getPatientService().getPatientIdentifierTypeByName("ARV Number");
 		PatientIdentifierType hccIdentifierType = Context.getPatientService().getPatientIdentifierTypeByName("HCC Number");
 		
-		List<Patient> exposedPatients = new ArrayList<Patient>();
-		List<Patient> partPatients = new ArrayList<Patient>();
-		List<Patient> artPatients = new ArrayList<Patient>();
 		Map<Integer, Patient> patients = new HashMap<Integer, Patient>();
 		
 		// collect all patients that ever have been registered in LWAN for HCC or ART 
@@ -134,27 +130,6 @@ public class Exporter {
 				    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/art/", "");
 			}
 		}
-		// also make sure we get the Pre-ART patients that have been on Pre-ART somewhere else and are now on ART in LWAN
-		/*
-		// ART
-		PatientIdentifierType identifierType = Context.getPatientService().getPatientIdentifierTypeByName("ARV Number");
-		String identifierPrefix = "LWAN ";
-		EncounterType initial = Context.getEncounterService().getEncounterType("ART_INITIAL");
-		EncounterType followup = Context.getEncounterService().getEncounterType("ART_FOLLOWUP");
-		List<Patient> patients = new ArrayList<Patient>();
-		List<Patient> potentialPatient = Context.getPatientService().getPatients(null, identifierPrefix,
-		    Arrays.asList(identifierType), false);
-		for (Patient p : potentialPatient) {
-			List<Encounter> encounters = Context.getEncounterService().getEncounters(p, null, null, null, null,
-			    Arrays.asList(initial, followup), null, false);
-			if (encounters.size() > 0) {
-				patients.add(p);
-			}
-		}
-		export(patients, initial, followup, identifierType,
-		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/src/ART_PatientCard.csv",
-		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/art/", "");
-		    */
 	}
 	
 	private void export(List<Patient> patients, EncounterType initial, EncounterType followup,
