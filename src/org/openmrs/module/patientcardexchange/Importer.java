@@ -32,7 +32,7 @@ import au.com.bytecode.opencsv.CSVReader;
 
 public class Importer {
 	
-	private static Connection jdbcConnection = null;
+	public static Connection jdbcConnection = null;
 	
 	public static void main(String[] args) {
 		try {
@@ -72,7 +72,7 @@ public class Importer {
 		System.exit(0);
 	}
 	
-	private void run() throws Exception {
+	public void run() throws Exception {
 		// Exposed
 		importMe("/Users/xian/projects/pih/openmrs-mastercard-export-import/src/Exposed-Child_PatientCard.csv",
 		    "/Users/xian/projects/pih/openmrs-mastercard-export-import/export/exposed");
@@ -100,9 +100,12 @@ public class Importer {
 		if (csvFiles != null) {
 			for (File csvFile : csvFiles) {
 				try {
+					if (csvFile.canRead() && csvFile.isFile() && !csvFile.getName().equals(".csv")) {
+					System.out.println("Importing file " + csvFile.getAbsolutePath());
 					List<String[]> csvPatient = readCsvPatient(csvFile.getAbsolutePath());
 					IPatient srcPatient = new CsvDeserializer().deserialize(csvPatient, csvTemplate);
 					patients.add(srcPatient);
+					}
 				}
 				catch (Exception e) {
 					System.out.println("Something went wrong with " + csvFile.getName());
@@ -110,7 +113,11 @@ public class Importer {
 			}
 		}
 		for (IPatient patient : patients) {
-			new ConverterToPatient().convert(patient, jdbcConnection);
+			try {
+				new ConverterToPatient().convert(patient, jdbcConnection);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

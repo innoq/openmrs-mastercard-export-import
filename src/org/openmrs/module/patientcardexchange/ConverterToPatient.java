@@ -88,6 +88,12 @@ public class ConverterToPatient {
 				target.addName(targetName);
 			}
 			Context.getPatientService().savePatient(target);
+			Obs notesObs = new Obs();
+			notesObs.setObsDatetime(new Date());
+			notesObs.setConcept(MetadataLookup.lookupConcept(7756));
+			notesObs.setValueText("Imported through openmrs-mastercard-export-import");
+			notesObs.setPerson(target);
+			Context.getObsService().saveObs(notesObs, null);
 		}
 		if (newPatient) {
 			// assume that for existing patients we already have the stuff
