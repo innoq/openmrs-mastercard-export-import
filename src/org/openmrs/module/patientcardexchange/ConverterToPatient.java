@@ -105,6 +105,8 @@ public class ConverterToPatient {
 				targetPp.setProgram(MetadataLookup.lookupProgram(srcPp.programId));
 				targetPp.setPatient(target);
 				for (IPatientState srcState : srcPp.states) {
+					// TODO TODO TODO
+					System.err.println("Dont mess around with the order of patient states like we currently do here. Otherwise there can be a more recent patient_state with a lower patient_state number. This can mess around at least with some data quality reports.");
 					PatientState targetState = new PatientState();
 					//				convertBaseData(srcState, targetState);
 					targetState.setEndDate(srcState.endDate);
