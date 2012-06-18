@@ -96,7 +96,6 @@ public class ConverterToPatient {
 			Context.getObsService().saveObs(notesObs, null);
 		}
 		if (newPatient) {
-			// assume that for existing patients we already have the stuff
 			for (IPatientProgram srcPp : src.patientPrograms) {
 				PatientProgram targetPp = new PatientProgram();
 				//			convertBaseData(srcPp, targetPp);
@@ -121,36 +120,39 @@ public class ConverterToPatient {
 		
 		for (IEncounter srcEncounter : src.encounters) {
 			Encounter targetEncounter = new Encounter();
-			convertBaseData(srcEncounter, targetEncounter);
-			targetEncounter.setEncounterDatetime(srcEncounter.encounterDatetime);
-			targetEncounter.setEncounterType(MetadataLookup.lookupEncounterType(srcEncounter.encounterTypeId));
-			targetEncounter.setLocation(MetadataLookup.lookupLocation(srcEncounter.locationId));
-			targetEncounter.setPatient(target);
-			// for now simply set a default
-			targetEncounter.setProvider(Util.unknownProvider());
-			targetEncounter.setForm(MetadataLookup.formForEncounterType(srcEncounter.encounterTypeId));
-			for (IObs srcObs : srcEncounter.obses) {
-				Obs targetObs = new Obs();
-				convertBaseData(srcObs, targetObs);
-				targetObs.setConcept(MetadataLookup.lookupConcept(srcObs.conceptId));
-				targetObs.setDateStarted(srcObs.dateStarted);
-				targetObs.setDateStopped(srcObs.dateStopped);
-				targetObs.setLocation(MetadataLookup.lookupLocation(srcObs.locationId));
-				targetObs.setObsDatetime(srcObs.obsDatetime);
-				targetObs.setValueCoded(MetadataLookup.lookupConcept(srcObs.valueCodedConceptId));
-				targetObs.setValueComplex(srcObs.valueComplex);
-				targetObs.setValueDatetime(srcObs.valueDatetime);
-				targetObs.setValueModifier(srcObs.valueModifier);
-				targetObs.setValueNumeric(srcObs.valueNumeric);
-				targetObs.setValueText(srcObs.valueText);
-				targetEncounter.addObs(targetObs);
+			if (Context.getEncounterService().getEncounterByUuid(srcEncounter.uuid) == null) {
+				// seems to be a new encounter, so import it
+				convertBaseData(srcEncounter, targetEncounter);
+				targetEncounter.setEncounterDatetime(srcEncounter.encounterDatetime);
+				targetEncounter.setEncounterType(MetadataLookup.lookupEncounterType(srcEncounter.encounterTypeId));
+				targetEncounter.setLocation(MetadataLookup.lookupLocation(srcEncounter.locationId));
+				targetEncounter.setPatient(target);
+				// for now simply set a default
+				targetEncounter.setProvider(Util.unknownProvider());
+				targetEncounter.setForm(MetadataLookup.formForEncounterType(srcEncounter.encounterTypeId));
+				for (IObs srcObs : srcEncounter.obses) {
+					Obs targetObs = new Obs();
+					convertBaseData(srcObs, targetObs);
+					targetObs.setConcept(MetadataLookup.lookupConcept(srcObs.conceptId));
+					targetObs.setDateStarted(srcObs.dateStarted);
+					targetObs.setDateStopped(srcObs.dateStopped);
+					targetObs.setLocation(MetadataLookup.lookupLocation(srcObs.locationId));
+					targetObs.setObsDatetime(srcObs.obsDatetime);
+					targetObs.setValueCoded(MetadataLookup.lookupConcept(srcObs.valueCodedConceptId));
+					targetObs.setValueComplex(srcObs.valueComplex);
+					targetObs.setValueDatetime(srcObs.valueDatetime);
+					targetObs.setValueModifier(srcObs.valueModifier);
+					targetObs.setValueNumeric(srcObs.valueNumeric);
+					targetObs.setValueText(srcObs.valueText);
+					targetEncounter.addObs(targetObs);
+				}
+				Obs notesObs = new Obs();
+				notesObs.setObsDatetime(new Date());
+				notesObs.setConcept(MetadataLookup.lookupConcept(7756));
+				notesObs.setValueText("Imported through openmrs-mastercard-export-import");
+				targetEncounter.addObs(notesObs);
+				Context.getEncounterService().saveEncounter(targetEncounter);
 			}
-			Obs notesObs = new Obs();
-			notesObs.setObsDatetime(new Date());
-			notesObs.setConcept(MetadataLookup.lookupConcept(7756));
-			notesObs.setValueText("Imported through openmrs-mastercard-export-import");
-			targetEncounter.addObs(notesObs);
-			Context.getEncounterService().saveEncounter(targetEncounter);
 		}
 		
 		System.out.println("Imported patient: " + target.getId());

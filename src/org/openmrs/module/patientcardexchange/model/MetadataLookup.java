@@ -64,17 +64,23 @@ public class MetadataLookup {
     public static Form formForEncounterType(Integer encounterTypeId) {
     	int formId = -1;
     	switch (encounterTypeId) {
-       		case 9:
+       		case 9: // ART_INITIAL
     			formId = 64;
     			break;
-    		case 10:
+    		case 10: // ART_FOLLOWUP
     			formId = 65;
     			break;
-       		case 11:
+       		case 11: // PART_INITIAL
     			formId = 66;
     			break;
-    		case 12:
+    		case 12: // PART_FOLLOWUP
     			formId = 67;
+    			break;
+    		case 92: // EXPOSED_INITIAL
+    			formId = 68;
+    			break;
+    		case 93: // EXPOSED_FOLLOWUP
+    			formId = 69;
     			break;
     	}
 	    return Context.getFormService().getForm(formId);

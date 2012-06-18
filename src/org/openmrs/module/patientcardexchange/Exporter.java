@@ -91,16 +91,26 @@ public class Exporter {
 		Map<Integer, Patient> patients = new HashMap<Integer, Patient>();
 		
 		// collect all patients that ever have been registered in LWAN for HCC or ART 
-		String identifierPrefix = "LWAN .*";
-		List<Patient> potentialPatient = Context.getPatientService().getPatients(null, identifierPrefix,
-		    Arrays.asList(hccIdentifierType), false);
-		for (Patient p : potentialPatient) {
-			patients.put(p.getId(), p);
-		}
-		potentialPatient = Context.getPatientService().getPatients(null, identifierPrefix, Arrays.asList(arvIdentifierType),
-		    false);
-		for (Patient p : potentialPatient) {
-			patients.put(p.getId(), p);
+//		String identifierPrefix = "LWAN .*";
+//		List<Patient> potentialPatient = Context.getPatientService().getPatients(null, identifierPrefix,
+//		    Arrays.asList(hccIdentifierType), false);
+//		for (Patient p : potentialPatient) {
+//			patients.put(p.getId(), p);
+//		}
+//		potentialPatient = Context.getPatientService().getPatients(null, identifierPrefix, Arrays.asList(arvIdentifierType),
+//		    false);
+//		for (Patient p : potentialPatient) {
+//			patients.put(p.getId(), p);
+//		}
+
+		// get patients from a list of patient ids (e.g. created from sync_record entries)
+		// 1. Dump sync_record with encounters
+		// select * from sync_record where contained_classes like '%ncounter%';
+		// 2. Filter MySQL export of sync_record table
+		// grep "<SyncItem containedType=\"org.openmrs.Encounter\"" a | sed "s/^.*<SyncItem containedType=\"org.openmrs.Encounter\"//g" | sed "s/state.*$//g"
+		List<Integer> patientIds = Arrays.asList(22885, 18671, 22936, 22599, 22665, 18039, 21411, 21727, 22724, 18427, 22993, 22784, 21671, 20931, 22179, 21785, 20839, 23023, 21780, 18080, 21941, 17853, 22664, 21942, 18186, 22881, 22782, 22149, 21192, 22181, 22886, 21607, 22883, 22886, 21409, 21717, 23023, 22725, 19115, 18831, 23024, 18231, 22847, 22788, 22298, 17853, 22602, 18097, 21783, 21845, 22751, 22663, 22749, 22466, 21341, 22256, 19206, 22722, 22884, 21726, 21943, 22280, 18617, 22722, 22782, 23024, 22847);
+		for (int patientId : patientIds) {
+			patients.put(patientId, Context.getPatientService().getPatient(patientId));
 		}
 		
 		// get all exposed, pre-art, and art history for all these patients
